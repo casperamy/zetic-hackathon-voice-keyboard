@@ -26,6 +26,7 @@ android {
         buildConfigField("String", "PERSONAL_KEY", "\"${localProperties.getProperty("PERSONAL_KEY") ?: ""}\"")
         buildConfigField("String", "WHISPER_ENCODER_MODEL", "\"${localProperties.getProperty("WHISPER_ENCODER_MODEL") ?: ""}\"")
         buildConfigField("String", "WHISPER_DECODER_MODEL", "\"${localProperties.getProperty("WHISPER_DECODER_MODEL") ?: ""}\"")
+        buildConfigField("String", "FORMATTER_LLM_MODEL", "\"${localProperties.getProperty("FORMATTER_LLM_MODEL") ?: ""}\"")
     }
 
     buildTypes {
@@ -62,6 +63,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.zetic.mlange)
     testImplementation(libs.junit)
+    testImplementation("org.json:json:20240303")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }

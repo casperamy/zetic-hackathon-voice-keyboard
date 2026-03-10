@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">VoiceKeyboard</string>
+    <string name="voice_input_key">Voice input</string>
+    <string name="backspace_key">Backspace</string>
 </resources>

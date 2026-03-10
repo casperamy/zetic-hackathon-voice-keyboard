@@ -14,22 +14,53 @@
         android:orientation="vertical">
 
         <FrameLayout
-            android:id="@+id/micBubble"
-            android:layout_width="72dp"
+            android:layout_width="match_parent"
             android:layout_height="72dp"
-            android:background="@drawable/bg_bubble"
-            android:elevation="4dp"
-            android:clickable="true"
-            android:focusable="true">
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp">
 
-            <ImageView
-                android:id="@+id/micIcon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+            <FrameLayout
+                android:id="@+id/micBubble"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
                 android:layout_gravity="center"
-                android:src="@android:drawable/ic_btn_speak_now"
-                android:contentDescription="Voice Input"
-                app:tint="@android:color/white" />
+                android:background="@drawable/bg_bubble"
+                android:clickable="true"
+                android:elevation="4dp"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/micIcon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/voice_input_key"
+                    android:src="@android:drawable/ic_btn_speak_now"
+                    app:tint="@android:color/white" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/backspaceBubble"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="center_vertical|end"
+                android:background="@drawable/bg_bubble"
+                android:backgroundTint="#607D8B"
+                android:clickable="true"
+                android:elevation="4dp"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/backspaceIcon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/backspace_key"
+                    android:src="@android:drawable/ic_input_delete"
+                    app:tint="@android:color/white" />
+
+            </FrameLayout>
 
         </FrameLayout>
 
@@ -51,8 +82,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:gravity="center"
-            android:maxLines="2"
-            android:ellipsize="end"
+            android:maxLines="10"
             android:text=""
             android:textColor="#AAAAAA"
             android:textSize="11sp"

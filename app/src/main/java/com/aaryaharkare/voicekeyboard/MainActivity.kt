@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusSelected: TextView
     private lateinit var statusPermission: TextView
     private lateinit var statusModel: TextView
+    private lateinit var statusFormatter: TextView
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         statusSelected = findViewById(R.id.statusSelected)
         statusPermission = findViewById(R.id.statusPermission)
         statusModel = findViewById(R.id.statusModel)
+        statusFormatter = findViewById(R.id.statusFormatter)
 
         findViewById<Button>(R.id.btnEnable).setOnClickListener {
             val intent = Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
@@ -69,6 +71,12 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnLoadModel).setOnClickListener {
             preloadModels()
+        }
+
+        findViewById<Button>(R.id.btnFormatterToggle).setOnClickListener {
+            val enabled = FormatterPreferences.isFormatterEnabled(this)
+            FormatterPreferences.setFormatterEnabled(this, !enabled)
+            updateStatus()
         }
 
         statusModel.text = "Models: Not Loaded"
@@ -123,6 +131,18 @@ class MainActivity : AppCompatActivity() {
         statusEnabled.text = "Keyboard Enabled: ${if (isEnabled) "YES" else "NO"}"
         statusSelected.text = "Keyboard Selected: ${if (isSelected) "YES" else "NO"}"
         statusPermission.text = "Mic Permission: ${if (hasPermission) "GRANTED" else "NOT GRANTED"}"
+
+        val formatterEnabled = FormatterPreferences.isFormatterEnabled(this)
+        statusFormatter.text = "Formatter: ${if (formatterEnabled) "ON" else "OFF"}"
+        statusFormatter.setTextColor(
+            ContextCompat.getColor(
+                this,
+                if (formatterEnabled) android.R.color.holo_green_dark else android.R.color.darker_gray,
+            ),
+        )
+
+        val toggleButton = findViewById<Button>(R.id.btnFormatterToggle)
+        toggleButton.text = "5. Toggle Formatter (${if (formatterEnabled) "ON" else "OFF"})"
     }
 
     private fun isInputMethodEnabled(): Boolean {
