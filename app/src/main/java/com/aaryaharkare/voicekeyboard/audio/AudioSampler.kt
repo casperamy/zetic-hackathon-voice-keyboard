@@ -44,16 +44,17 @@ class AudioSampler(
         recordThread =
             Thread(
                 {
-                    val temp = ShortArray(minBufferSize / 2)
-                    val collected = ArrayList<Float>(SAMPLE_RATE * 10)
+                    val pcmBuffer = ShortArray(minBufferSize / 2)
+                    val collected = FloatAccumulator(SAMPLE_RATE * 8)
 
                     try {
                         recorder.startRecording()
                         while (isRecording) {
-                            val read = recorder.read(temp, 0, temp.size, AudioRecord.READ_BLOCKING)
+                            val read = recorder.read(pcmBuffer, 0, pcmBuffer.size, AudioRecord.READ_BLOCKING)
                             if (read > 0) {
                                 for (i in 0 until read) {
-                                    collected.add((temp[i] / Short.MAX_VALUE.toFloat()).coerceIn(-1f, 1f))
+                                    val sample = (pcmBuffer[i] / Short.MAX_VALUE.toFloat()).coerceIn(-1f, 1f)
+                                    collected.append(sample)
                                 }
                             }
                         }
@@ -66,7 +67,7 @@ class AudioSampler(
                         if (audioRecord === recorder) {
                             audioRecord = null
                         }
-                        onAudioReady(collected.toFloatArray())
+                        onAudioReady(collected.toArray())
                     }
                 },
                 "VoiceKeyboardAudioSampler",
@@ -88,5 +89,20 @@ class AudioSampler(
         const val SAMPLE_RATE = 16_000
         const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
         const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
+    }
+
+    private class FloatAccumulator(initialCapacity: Int) {
+        private var buffer = FloatArray(initialCapacity.coerceAtLeast(1))
+        private var size = 0
+
+        fun append(value: Float) {
+            if (size == buffer.size) {
+                buffer = buffer.copyOf(buffer.size * 2)
+            }
+            buffer[size] = value
+            size += 1
+        }
+
+        fun toArray(): FloatArray = buffer.copyOf(size)
     }
 }

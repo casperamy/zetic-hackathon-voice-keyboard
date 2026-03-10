@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.TextView
@@ -16,11 +17,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.zeticai.mlange.core.model.ModelMode
-import com.zeticai.mlange.core.model.Target
-import com.zeticai.mlange.core.model.ZeticMLangeModel
+import com.aaryaharkare.voicekeyboard.whisper.WhisperPipeline
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        private const val TAG = "VoiceKB"
+    }
+
 
     private lateinit var statusEnabled: TextView
     private lateinit var statusSelected: TextView
@@ -72,37 +76,32 @@ class MainActivity : AppCompatActivity() {
 
     private fun preloadModels() {
         statusModel.text = "Loading Whisper Models..."
-        
+
         Thread {
             try {
-                // Aligned with official documentation for version 1.5.7
-                // Use the keys from local.properties (via BuildConfig)
-                val encoder = ZeticMLangeModel(
-                    this, 
-                    BuildConfig.PERSONAL_KEY, 
-                    BuildConfig.WHISPER_ENCODER_MODEL, 
-                    target = Target.ORT
-                )
-                encoder.close()
-                
-                val decoder = ZeticMLangeModel(
-                    this, 
-                    BuildConfig.PERSONAL_KEY, 
-                    BuildConfig.WHISPER_DECODER_MODEL, 
-                    target = Target.ORT
-                )
-                decoder.close()
-                
+                WhisperPipeline.preload(applicationContext)
+                val warmupMetrics =
+                    runBlocking {
+                        WhisperPipeline.warmupBestEffort(applicationContext)
+                    }
+
                 runOnUiThread {
-                    statusModel.text = "Whisper Models Ready"
+                    val label =
+                        if (warmupMetrics != null) {
+                            "Whisper Models Ready (${warmupMetrics.totalPipelineMs}ms warmup)"
+                        } else {
+                            "Whisper Models Ready (warmup skipped)"
+                        }
+                    statusModel.text = label
                     statusModel.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark))
                     Toast.makeText(this, "Models Preloaded Successfully", Toast.LENGTH_SHORT).show()
                 }
-            } catch (e: Exception) {
+            } catch (t: Throwable) {
+                Log.e(TAG, "Model preload failed", t)
                 runOnUiThread {
-                    statusModel.text = "Model Load Failed: ${e.message}"
+                    statusModel.text = "Model Load Failed: ${t.message}"
                     statusModel.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark))
-                    Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Error: ${t.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }.start()

@@ -17,47 +17,91 @@ class WhisperFeature(
     private val decoder by lazy { WhisperDecoder(context, personalKey, decoderModelKey) }
     private val whisperWrapper by lazy { WhisperWrapper(copyAssetToInternalStorage(context)) }
 
-    suspend fun run(audio: FloatArray): String {
+    private val paddedAudioBuffer = FloatArray(WHISPER_AUDIO_SAMPLES)
+
+    fun ensureInitialized() {
+        encoder
+        decoder
+        whisperWrapper
+    }
+
+    suspend fun run(audio: FloatArray): String = runWithMetrics(audio).transcript
+
+    suspend fun runWithMetrics(audio: FloatArray): WhisperRunResult {
         require(audio.size >= MIN_AUDIO_SAMPLES) {
             "Speak a little longer before stopping"
         }
 
-        Log.d(TAG, "run: raw audio ${audio.size} samples (${audio.size / 16000f}s)")
+        val startedAt = System.nanoTime()
+        val paddedAudio = toWhisperLength(audio)
 
-        // Whisper expects exactly 30 seconds of audio (480,000 samples at 16 kHz).
-        // Pad short clips with silence or truncate long ones.
-        val paddedAudio = when {
-            audio.size == WHISPER_AUDIO_SAMPLES -> audio
-            audio.size > WHISPER_AUDIO_SAMPLES -> audio.copyOfRange(0, WHISPER_AUDIO_SAMPLES)
-            else -> FloatArray(WHISPER_AUDIO_SAMPLES).also { audio.copyInto(it) }
-        }
-        Log.d(TAG, "run: padded audio ${paddedAudio.size} samples")
-
-        Log.d(TAG, "run: calling whisperWrapper.process()")
+        val featureStartedAt = System.nanoTime()
         val encodedFeatures = whisperWrapper.process(paddedAudio)
-        Log.d(TAG, "run: mel features ${encodedFeatures.size} floats (expected 240000)")
         require(encodedFeatures.isNotEmpty()) {
             "Whisper feature extraction returned no data"
         }
+        val featureFinishedAt = System.nanoTime()
 
-        Log.d(TAG, "run: calling encoder.process()")
         val encoderOutputs = encoder.process(encodedFeatures)
-        Log.d(TAG, "run: encoder done, output buffer capacity=${encoderOutputs.capacity()} pos=${encoderOutputs.position()} lim=${encoderOutputs.limit()}")
-        encoderOutputs.position(0)
+        val encoderFinishedAt = System.nanoTime()
 
-        Log.d(TAG, "run: calling decoder.generateTokens()")
-        val generatedIds = decoder.generateTokens(encoderOutputs)
-        Log.d(TAG, "run: decoder generated ${generatedIds.size} tokens")
-        if (generatedIds.isEmpty()) {
-            return ""
+        val decoderResult = decoder.generateTokens(encoderOutputs)
+
+        val transcript = if (decoderResult.tokenCount == 0) {
+            ""
+        } else {
+            val decoded =
+                whisperWrapper.decodeToken(
+                    decoderResult.tokenIds.copyOf(decoderResult.tokenCount),
+                    true,
+                )
+            decoded?.trim().orEmpty()
         }
-        return whisperWrapper.decodeToken(generatedIds.toIntArray(), true).trim()
+
+        val totalMs = nanosToMillis(System.nanoTime() - startedAt)
+        val metrics =
+            WhisperRunMetrics(
+                audioReadyToFeatureExtractionMs = nanosToMillis(featureFinishedAt - startedAt),
+                featureExtractionToEncoderMs = nanosToMillis(encoderFinishedAt - featureFinishedAt),
+                decoderTotalMs = decoderResult.decoderMs,
+                decoderSteps = decoderResult.decodeSteps,
+                totalPipelineMs = totalMs,
+            )
+
+        if (BuildConfig.DEBUG) {
+            Log.d(
+                TAG,
+                "perf audio->feature=${metrics.audioReadyToFeatureExtractionMs}ms " +
+                    "feature->encoder=${metrics.featureExtractionToEncoderMs}ms " +
+                    "decoder=${metrics.decoderTotalMs}ms " +
+                    "steps=${metrics.decoderSteps} total=${metrics.totalPipelineMs}ms",
+            )
+        }
+
+        return WhisperRunResult(transcript = transcript, metrics = metrics)
+    }
+
+    suspend fun warmup(): WhisperRunMetrics {
+        return runWithMetrics(FloatArray(MIN_AUDIO_SAMPLES)).metrics
     }
 
     fun close() {
         encoder.close()
         decoder.close()
         whisperWrapper.deinit()
+    }
+
+    @Synchronized
+    private fun toWhisperLength(audio: FloatArray): FloatArray {
+        return when {
+            audio.size == WHISPER_AUDIO_SAMPLES -> audio
+            audio.size > WHISPER_AUDIO_SAMPLES -> audio.copyOfRange(0, WHISPER_AUDIO_SAMPLES)
+            else -> {
+                paddedAudioBuffer.fill(0f)
+                audio.copyInto(paddedAudioBuffer)
+                paddedAudioBuffer
+            }
+        }
     }
 
     private fun copyAssetToInternalStorage(
@@ -77,9 +121,24 @@ class WhisperFeature(
         return outFile.absolutePath
     }
 
+    private fun nanosToMillis(nanos: Long): Long = nanos / 1_000_000L
+
+    data class WhisperRunResult(
+        val transcript: String,
+        val metrics: WhisperRunMetrics,
+    )
+
+    data class WhisperRunMetrics(
+        val audioReadyToFeatureExtractionMs: Long,
+        val featureExtractionToEncoderMs: Long,
+        val decoderTotalMs: Long,
+        val decoderSteps: Int,
+        val totalPipelineMs: Long,
+    )
+
     companion object {
         private const val TAG = "VoiceKB"
-        private const val MIN_AUDIO_SAMPLES = 4_000
+        const val MIN_AUDIO_SAMPLES = 4_000
         private const val WHISPER_AUDIO_SAMPLES = 480_000 // 30 seconds at 16 kHz
     }
 }
