@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.TextView
@@ -22,15 +21,12 @@ import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
     companion object {
-        private const val TAG = "VoiceKB"
     }
-
 
     private lateinit var statusEnabled: TextView
     private lateinit var statusSelected: TextView
     private lateinit var statusPermission: TextView
     private lateinit var statusModel: TextView
-    private lateinit var statusFormatter: TextView
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -52,7 +48,6 @@ class MainActivity : AppCompatActivity() {
         statusSelected = findViewById(R.id.statusSelected)
         statusPermission = findViewById(R.id.statusPermission)
         statusModel = findViewById(R.id.statusModel)
-        statusFormatter = findViewById(R.id.statusFormatter)
 
         findViewById<Button>(R.id.btnEnable).setOnClickListener {
             val intent = Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
@@ -73,17 +68,12 @@ class MainActivity : AppCompatActivity() {
             preloadModels()
         }
 
-        findViewById<Button>(R.id.btnFormatterToggle).setOnClickListener {
-            val enabled = FormatterPreferences.isFormatterEnabled(this)
-            FormatterPreferences.setFormatterEnabled(this, !enabled)
-            updateStatus()
-        }
-
-        statusModel.text = "Models: Not Loaded"
+        applyModelStatus()
     }
 
     private fun preloadModels() {
-        statusModel.text = "Loading Whisper Models..."
+        statusModel.text = "Loading Whisper..."
+        statusModel.setTextColor(ContextCompat.getColor(this, android.R.color.holo_blue_dark))
 
         Thread {
             try {
@@ -94,18 +84,10 @@ class MainActivity : AppCompatActivity() {
                     }
 
                 runOnUiThread {
-                    val label =
-                        if (warmupMetrics != null) {
-                            "Whisper Models Ready (${warmupMetrics.totalPipelineMs}ms warmup)"
-                        } else {
-                            "Whisper Models Ready (warmup skipped)"
-                        }
-                    statusModel.text = label
-                    statusModel.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark))
-                    Toast.makeText(this, "Models Preloaded Successfully", Toast.LENGTH_SHORT).show()
+                    applyModelStatus(warmupMetrics?.totalPipelineMs)
+                    Toast.makeText(this, "Whisper ready", Toast.LENGTH_SHORT).show()
                 }
             } catch (t: Throwable) {
-                Log.e(TAG, "Model preload failed", t)
                 runOnUiThread {
                     statusModel.text = "Model Load Failed: ${t.message}"
                     statusModel.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark))
@@ -132,17 +114,30 @@ class MainActivity : AppCompatActivity() {
         statusSelected.text = "Keyboard Selected: ${if (isSelected) "YES" else "NO"}"
         statusPermission.text = "Mic Permission: ${if (hasPermission) "GRANTED" else "NOT GRANTED"}"
 
-        val formatterEnabled = FormatterPreferences.isFormatterEnabled(this)
-        statusFormatter.text = "Formatter: ${if (formatterEnabled) "ON" else "OFF"}"
-        statusFormatter.setTextColor(
+        val preloadButton = findViewById<Button>(R.id.btnLoadModel)
+        preloadButton.text = "4. Preload Whisper"
+
+        applyModelStatus()
+    }
+
+    private fun applyModelStatus(whisperWarmupMs: Long? = null) {
+        statusModel.text =
+            buildString {
+                append("Whisper: ")
+                append(
+                    if (whisperWarmupMs != null) {
+                        "ready (${whisperWarmupMs}ms)"
+                    } else {
+                        "not loaded"
+                    },
+                )
+            }
+        statusModel.setTextColor(
             ContextCompat.getColor(
                 this,
-                if (formatterEnabled) android.R.color.holo_green_dark else android.R.color.darker_gray,
+                if (whisperWarmupMs != null) android.R.color.holo_green_dark else android.R.color.darker_gray,
             ),
         )
-
-        val toggleButton = findViewById<Button>(R.id.btnFormatterToggle)
-        toggleButton.text = "5. Toggle Formatter (${if (formatterEnabled) "ON" else "OFF"})"
     }
 
     private fun isInputMethodEnabled(): Boolean {

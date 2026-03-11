@@ -14,10 +14,6 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.aaryaharkare.voicekeyboard.audio.AudioSampler
-import com.aaryaharkare.voicekeyboard.formatter.FormatterDecisionPolicy
-import com.aaryaharkare.voicekeyboard.formatter.FormatterFieldContext
-import com.aaryaharkare.voicekeyboard.formatter.FormatterPipeline
-import com.aaryaharkare.voicekeyboard.formatter.FormatterResult
 import com.aaryaharkare.voicekeyboard.whisper.WhisperFeature
 import com.aaryaharkare.voicekeyboard.whisper.WhisperPipeline
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +24,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Locale
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.sqrt
 
@@ -52,14 +47,9 @@ class VoiceInputMethodService : InputMethodService() {
 
     private var lastTranscript: String? = null
     private var lastPerfSummary: String? = null
-    private var lastFormatterSummary: String? = null
     private var lastRawOutput: String? = null
     private var lastWhisperOutput: String? = null
-    private var lastFirstPassOutput: String? = null
-    private var lastSecondPassOutput: String? = null
-    private var lastFinalOutput: String? = null
     private var currentInputType: Int = 0
-    private var formatterEnabled: Boolean = false
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val sessionId = AtomicLong(0L)
 
@@ -105,19 +95,13 @@ class VoiceInputMethodService : InputMethodService() {
         stopRecording()
         stopBackspaceRepeater()
         audioSampler?.release()
-        FormatterPipeline.release()
     }
 
     private fun resetToInitialState(info: EditorInfo?) {
         stopRecording()
         currentInputType = info?.inputType ?: 0
-        formatterEnabled = FormatterPreferences.isFormatterEnabled(applicationContext)
-        lastFormatterSummary = null
         lastRawOutput = null
         lastWhisperOutput = null
-        lastFirstPassOutput = null
-        lastSecondPassOutput = null
-        lastFinalOutput = null
         currentState =
             if (isPasswordField(currentInputType)) {
                 ImeState.DISABLED
@@ -246,9 +230,6 @@ class VoiceInputMethodService : InputMethodService() {
                 lastPerfSummary = null
                 lastRawOutput = null
                 lastWhisperOutput = null
-                lastFirstPassOutput = null
-                lastSecondPassOutput = null
-                lastFinalOutput = null
                 updateUi()
             }
             return
@@ -262,9 +243,6 @@ class VoiceInputMethodService : InputMethodService() {
                 lastPerfSummary = "perf skipped (silence)"
                 lastRawOutput = null
                 lastWhisperOutput = null
-                lastFirstPassOutput = null
-                lastSecondPassOutput = null
-                lastFinalOutput = null
                 updateUi()
             }
             return
@@ -275,23 +253,6 @@ class VoiceInputMethodService : InputMethodService() {
                 val runResult = WhisperPipeline.get(applicationContext).runWithMetrics(audioSamples)
                 val rawOutput = runResult.transcript
                 val whisperOutput = rawOutput.trim()
-                val formatterStarted = System.nanoTime()
-                val shouldFormat =
-                    FormatterDecisionPolicy.shouldAttemptFormatting(
-                        formatterEnabled = formatterEnabled,
-                        inputType = currentInputType,
-                    )
-                val formatterResult =
-                    if (whisperOutput.isNotBlank() && shouldFormat) {
-                        FormatterPipeline.get(applicationContext)
-                            .format(
-                                whisperOutput,
-                                FormatterFieldContext.fromInputType(currentInputType),
-                            )
-                    } else {
-                        null
-                    }
-                val formatterMs = nanosToMillis(System.nanoTime() - formatterStarted)
 
                 withContext(Dispatchers.Main) {
                     if (activeSession != sessionId.get()) return@withContext
@@ -300,44 +261,14 @@ class VoiceInputMethodService : InputMethodService() {
                     lastRawOutput = rawOutput
                     lastWhisperOutput = whisperOutput
                     if (whisperOutput.isNotBlank()) {
-                        val commitText =
-                            computeCommitText(
-                                whisperText = whisperOutput,
-                                formatterResult = formatterResult,
-                            )
-                        lastFirstPassOutput =
-                            formatterResult?.cleanupText?.trim()?.ifBlank { whisperOutput } ?: whisperOutput
-                        lastSecondPassOutput =
-                            formatterResult?.formattedText?.trim()?.ifBlank { whisperOutput } ?: whisperOutput
-                        lastFinalOutput = commitText
-                        currentInputConnection?.commitText(commitText, 1)
-                        lastTranscript = commitText
-                        if (BuildConfig.DEBUG) {
-                            lastFormatterSummary =
-                                buildFormatterDebugSummary(
-                                    formatterEnabled = formatterEnabled,
-                                    shouldFormat = shouldFormat,
-                                    formatterResult = formatterResult,
-                                    formatterMs = formatterMs,
-                                )
-                        } else {
-                            lastFormatterSummary = null
-                        }
-                        logFormatterTrace(
+                        currentInputConnection?.commitText(whisperOutput, 1)
+                        lastTranscript = whisperOutput
+                        logWhisperTrace(
                             rawOutput = rawOutput,
                             whisperOutput = whisperOutput,
-                            formatterResult = formatterResult,
-                            finalCommitText = commitText,
-                            formatterEnabled = formatterEnabled,
-                            shouldFormat = shouldFormat,
-                            formatterMs = formatterMs,
                         )
                     } else {
                         lastTranscript = "No speech detected"
-                        lastFormatterSummary = null
-                        lastFirstPassOutput = null
-                        lastSecondPassOutput = null
-                        lastFinalOutput = null
                     }
                     val commitMs = nanosToMillis(System.nanoTime() - commitStarted)
 
@@ -345,7 +276,6 @@ class VoiceInputMethodService : InputMethodService() {
                         "perf a->f ${runResult.metrics.audioReadyToFeatureExtractionMs}ms " +
                             "f->e ${runResult.metrics.featureExtractionToEncoderMs}ms " +
                             "d ${runResult.metrics.decoderTotalMs}ms/${runResult.metrics.decoderSteps} " +
-                            "fmt ${if (whisperOutput.isBlank()) 0 else formatterMs}ms " +
                             "c ${commitMs}ms t ${runResult.metrics.totalPipelineMs}ms"
 
                     if (BuildConfig.DEBUG) {
@@ -364,9 +294,6 @@ class VoiceInputMethodService : InputMethodService() {
                     lastPerfSummary = null
                     lastRawOutput = null
                     lastWhisperOutput = null
-                    lastFirstPassOutput = null
-                    lastSecondPassOutput = null
-                    lastFinalOutput = null
                     updateUi()
                 }
             }
@@ -405,12 +332,8 @@ class VoiceInputMethodService : InputMethodService() {
         val debugText = buildString {
             val transcriptText = lastTranscript.orEmpty().trim()
             val perfText = lastPerfSummary.orEmpty().trim()
-            val formatterText = if (BuildConfig.DEBUG) lastFormatterSummary.orEmpty().trim() else ""
             val rawText = if (BuildConfig.DEBUG) lastRawOutput.orEmpty().trim() else ""
             val whisperText = if (BuildConfig.DEBUG) lastWhisperOutput.orEmpty().trim() else ""
-            val firstPassText = if (BuildConfig.DEBUG) lastFirstPassOutput.orEmpty().trim() else ""
-            val secondPassText = if (BuildConfig.DEBUG) lastSecondPassOutput.orEmpty().trim() else ""
-            val finalText = if (BuildConfig.DEBUG) lastFinalOutput.orEmpty().trim() else ""
 
             if (BuildConfig.DEBUG) {
                 if (rawText.isNotBlank()) {
@@ -419,18 +342,6 @@ class VoiceInputMethodService : InputMethodService() {
                 if (whisperText.isNotBlank()) {
                     if (isNotEmpty()) append('\n')
                     append("whisper: ").append(whisperText)
-                }
-                if (firstPassText.isNotBlank()) {
-                    if (isNotEmpty()) append('\n')
-                    append("first pass: ").append(firstPassText)
-                }
-                if (secondPassText.isNotBlank()) {
-                    if (isNotEmpty()) append('\n')
-                    append("second pass: ").append(secondPassText)
-                }
-                if (finalText.isNotBlank()) {
-                    if (isNotEmpty()) append('\n')
-                    append("final: ").append(finalText)
                 }
                 if (isEmpty() && transcriptText.isNotBlank()) {
                     append(transcriptText)
@@ -441,10 +352,6 @@ class VoiceInputMethodService : InputMethodService() {
             if (perfText.isNotBlank()) {
                 if (isNotEmpty()) append('\n')
                 append(perfText)
-            }
-            if (formatterText.isNotBlank()) {
-                if (isNotEmpty()) append('\n')
-                append(formatterText)
             }
         }
 
@@ -479,74 +386,15 @@ class VoiceInputMethodService : InputMethodService() {
 
     private fun nanosToMillis(nanos: Long): Long = nanos / 1_000_000L
 
-    private fun computeCommitText(
-        whisperText: String,
-        formatterResult: FormatterResult?,
-    ): String {
-        val fallback = whisperText.trim()
-        if (fallback.isBlank()) return ""
-        val candidate = formatterResult?.finalText?.trim().orEmpty()
-        return if (candidate.isBlank()) fallback else candidate
-    }
-
-    private fun buildFormatterDebugSummary(
-        formatterEnabled: Boolean,
-        shouldFormat: Boolean,
-        formatterResult: FormatterResult?,
-        formatterMs: Long,
-    ): String {
-        if (!formatterEnabled) {
-            return "fmt disabled"
-        }
-        if (!shouldFormat) {
-            return "fmt bypassed (field policy)"
-        }
-        if (formatterResult == null) {
-            return "fmt unavailable"
-        }
-
-        val confidence = String.format(Locale.US, "%.2f", formatterResult.confidence)
-        val rawPreview = toDebugPreview(formatterResult.rawText)
-        val formattedPreview = toDebugPreview(formatterResult.formattedText)
-        return "fmt ${formatterMs}ms c=${formatterResult.cleanupPassMs}ms l=${formatterResult.listPassMs}ms conf=$confidence reason=${formatterResult.debugReason} raw=\"$rawPreview\" out=\"$formattedPreview\""
-    }
-
-    private fun toDebugPreview(text: String): String {
-        return text.replace('\n', ' ').trim().take(DEBUG_PREVIEW_CHARS)
-    }
-
-    private fun logFormatterTrace(
+    private fun logWhisperTrace(
         rawOutput: String,
         whisperOutput: String,
-        formatterResult: FormatterResult?,
-        finalCommitText: String,
-        formatterEnabled: Boolean,
-        shouldFormat: Boolean,
-        formatterMs: Long,
     ) {
         if (!BuildConfig.DEBUG) return
 
-        Log.d(TAG, "fmt_trace enabled=$formatterEnabled should_format=$shouldFormat total_ms=$formatterMs")
-        logLong(TAG, "fmt_trace raw", rawOutput)
-        logLong(TAG, "fmt_trace whisper", whisperOutput)
-        if (formatterResult == null) {
-            Log.d(TAG, "fmt_trace formatter_result=null")
-            logLong(TAG, "fmt_trace first_pass", whisperOutput)
-            logLong(TAG, "fmt_trace second_pass", whisperOutput)
-            logLong(TAG, "fmt_trace final_commit", finalCommitText)
-            return
-        }
-
-        Log.d(
-            TAG,
-            "fmt_trace logic reason=${formatterResult.debugReason} confidence=${String.format(Locale.US, "%.2f", formatterResult.confidence)} " +
-                "cleanup_ms=${formatterResult.cleanupPassMs} list_ms=${formatterResult.listPassMs} changes=${formatterResult.changesApplied}",
-        )
-        logLong(TAG, "fmt_trace pass1_cleanup_output_raw", formatterResult.cleanupRawOutput)
-        logLong(TAG, "fmt_trace first_pass", formatterResult.cleanupText)
-        logLong(TAG, "fmt_trace pass2_list_output_raw", formatterResult.listRawOutput)
-        logLong(TAG, "fmt_trace second_pass", formatterResult.formattedText)
-        logLong(TAG, "fmt_trace final_commit", finalCommitText)
+        Log.d(TAG, "whisper_trace")
+        logLong(TAG, "whisper_trace raw", rawOutput)
+        logLong(TAG, "whisper_trace final_commit", whisperOutput)
     }
 
     private fun logLong(
@@ -575,7 +423,6 @@ class VoiceInputMethodService : InputMethodService() {
         private const val MIN_PROCESS_SAMPLES = WhisperFeature.MIN_AUDIO_SAMPLES
         private const val SILENCE_CHECK_STRIDE = 2
         private const val SILENCE_RMS_THRESHOLD = 0.0085
-        private const val DEBUG_PREVIEW_CHARS = 80
         private const val LOG_CHUNK_SIZE = 3200
         private const val BACKSPACE_HOLD_DELAY_MS = 320L
         private const val BACKSPACE_START_INTERVAL_MS = 170L

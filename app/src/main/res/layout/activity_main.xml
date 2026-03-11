@@ -43,16 +43,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Whisper Models: Initializing..."
+        android:text="Whisper: not loaded"
         android:textColor="#FF9800" />
-
-    <TextView
-        android:id="@+id/statusFormatter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Formatter: OFF"
-        android:textColor="#888888" />
 
     <Button
         android:id="@+id/btnEnable"
@@ -80,13 +72,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="4. Preload Whisper Models" />
-
-    <Button
-        android:id="@+id/btnFormatterToggle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="5. Toggle Formatter (OFF)" />
+        android:text="4. Preload Whisper" />
 
 </LinearLayout>
