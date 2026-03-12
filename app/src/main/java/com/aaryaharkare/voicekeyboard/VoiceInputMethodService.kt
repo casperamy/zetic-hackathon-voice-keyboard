@@ -15,6 +15,7 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.aaryaharkare.voicekeyboard.audio.AudioSampler
+import com.aaryaharkare.voicekeyboard.formatter.FormatterFieldContext
 import com.aaryaharkare.voicekeyboard.formatter.FormatterLlmPipeline
 import com.aaryaharkare.voicekeyboard.formatter.FormatterResult
 import com.aaryaharkare.voicekeyboard.formatter.ZeticLlmFormatter
@@ -515,7 +516,11 @@ class VoiceInputMethodService : InputMethodService() {
             return FormattingExecutionResult(formattedOutput = text, formatterResult = null)
         }
 
-        val formatterResult = zeticLlmFormatter.format(text)
+        val formatterResult =
+            zeticLlmFormatter.format(
+                text = text,
+                fieldContext = FormatterFieldContext.fromInputType(currentInputType),
+            )
         return FormattingExecutionResult(
             formattedOutput = formatterResult.formattedText,
             formatterResult = formatterResult,
@@ -532,6 +537,12 @@ class VoiceInputMethodService : InputMethodService() {
         Log.d(TAG, "whisper_trace")
         logLong(TAG, "whisper_trace raw", rawOutput)
         logLong(TAG, "whisper_trace whisper", whisperOutput)
+        formattingExecution.formatterResult?.pass1Text?.takeIf { it.isNotBlank() }?.let {
+            logLong(TAG, "formatter_trace pass1", it)
+        }
+        formattingExecution.formatterResult?.pass2Text?.takeIf { it.isNotBlank() }?.let {
+            logLong(TAG, "formatter_trace pass2", it)
+        }
         logLong(TAG, "whisper_trace final_commit", formattingExecution.formattedOutput)
         logLong(TAG, "formatter_trace summary", formattingExecution.traceSummary())
         formattingExecution.formatterResult?.debugTrace?.forEachIndexed { index, line ->
@@ -604,6 +615,12 @@ class VoiceInputMethodService : InputMethodService() {
                 }
                 result.generationMs?.let {
                     append(" generation_ms=").append(it)
+                }
+                result.fallbackReason?.let {
+                    append(" fallback_reason=").append(it)
+                }
+                if (result.listPlans.isNotEmpty()) {
+                    append(" list_plans=").append(result.listPlans.size)
                 }
             }
         }

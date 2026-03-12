@@ -43,7 +43,7 @@ object FormatterLlmPipeline {
     suspend fun preloadAndWarm(context: Context): FormatterLlmGenerationResult {
         return generate(
             context = context,
-            prompt = ZeticLlmFormatter.buildPrompt(PRELOAD_SMOKE_INPUT),
+            prompt = ZeticLlmFormatter.buildWarmupPrompt(PRELOAD_SMOKE_INPUT),
         )
     }
 
