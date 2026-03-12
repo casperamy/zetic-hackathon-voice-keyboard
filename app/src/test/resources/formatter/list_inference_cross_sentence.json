@@ -1,0 +1,327 @@
+[
+  {
+    "id": "CSP001",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four things that are important. Name, place, animal, and thing."
+  },
+  {
+    "id": "CSP002",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four priorities for this release. Onboarding polish, payment testing, support routing, and crash recovery."
+  },
+  {
+    "id": "CSP003",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 3,
+    "text": "There are three reasons we paused. Vendor delay, missing approvals, and unclear ownership."
+  },
+  {
+    "id": "CSP004",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "Here are the next steps. Freeze scope, rerun QA, send notes, and ship."
+  },
+  {
+    "id": "CSP005",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "Here are the important parts. Input capture, transcription, formatting, and commit."
+  },
+  {
+    "id": "CSP006",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four product goals this quarter. Retention, referrals, activation, and margin."
+  },
+  {
+    "id": "CSP007",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four channels that matter most. Search, email, partnerships, and referrals."
+  },
+  {
+    "id": "CSP008",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four themes in the feedback. Trust, speed, clarity, and control."
+  },
+  {
+    "id": "CSP009",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four items in the box. Battery pack, charging cable, wall plug, and case."
+  },
+  {
+    "id": "CSP010",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four habits I want to keep. Planning, shipping, measuring, and iterating."
+  },
+  {
+    "id": "CSP011",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "Here are the constraints. Battery life, heat, latency, and memory."
+  },
+  {
+    "id": "CSP012",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four concerns left. Pricing risk, support load, refund abuse, and launch timing."
+  },
+  {
+    "id": "CSP013",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four benefits to this approach. Lower cost, clearer rules, faster debugging, and safer commits."
+  },
+  {
+    "id": "CSP014",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four questions we still have. Scope, timing, staffing, and rollout."
+  },
+  {
+    "id": "CSP015",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four parts to the workflow. Record audio, transcribe text, format output, and commit text."
+  },
+  {
+    "id": "CSP016",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four outputs from the audit. Crash logs, trace files, screenshots, and notes."
+  },
+  {
+    "id": "CSP017",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "Here are the categories we care about. Precision, recall, latency, and stability."
+  },
+  {
+    "id": "CSP018",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four metrics to watch. Churn, margin, payback, and conversion."
+  },
+  {
+    "id": "CSP019",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four gaps in the release. Settings polish, retry logic, state recovery, and analytics QA."
+  },
+  {
+    "id": "CSP020",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four values we care about. Honesty, speed, craft, and ownership."
+  },
+  {
+    "id": "CSP021",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four things in the pantry. Rice, beans, tomatoes, and oil."
+  },
+  {
+    "id": "CSP022",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four points in the brief. Audience, constraints, goal, and timeline."
+  },
+  {
+    "id": "CSP023",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "There are four tasks for tomorrow. Fix login, clean copy, verify billing, and ship."
+  },
+  {
+    "id": "CSP024",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "Here are the bullet points. Design, development, marketing, and sales."
+  },
+  {
+    "id": "CSP025",
+    "category": "cross_sentence_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "The next steps are clear. Audit permissions, fix retries, recheck copy, and ship."
+  },
+  {
+    "id": "CSN001",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are four things we talked about. We waited, argued, and left."
+  },
+  {
+    "id": "CSN002",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "Here are the next steps. I looked at the log, shrugged, and closed the laptop."
+  },
+  {
+    "id": "CSN003",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are three reasons this was difficult. The room was loud, the build was late, and the phone was hot."
+  },
+  {
+    "id": "CSN004",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are four concerns left. The vendor is late, the scope is unclear, and support is tired."
+  },
+  {
+    "id": "CSN005",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "Here are the details. On Tuesday, April 9, 2026, the letter arrived."
+  },
+  {
+    "id": "CSN006",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are four things on my desk. A cup is leaking, the charger is missing, and the screen is dirty."
+  },
+  {
+    "id": "CSN007",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are three reasons I stayed. I was tired, the train was late, and the rain was heavy."
+  },
+  {
+    "id": "CSN008",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "Here are the points from the call. She sounded calm, the deck looked rushed, and nobody agreed."
+  },
+  {
+    "id": "CSN009",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are four items in the address. 240 King Street, Apartment 6B, Seattle, Washington."
+  },
+  {
+    "id": "CSN010",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are four items in the title. Senior Manager, Platform Operations, at the hospital, in Seattle."
+  },
+  {
+    "id": "CSN011",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "Here are the next steps. Tomorrow we regroup."
+  },
+  {
+    "id": "CSN012",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are four reasons this feels broken. Because the audio is noisy, because the timing is off, and because the UI stutters."
+  },
+  {
+    "id": "CSN013",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are four concerns with the apartment. It is in Portland, Oregon, near the river."
+  },
+  {
+    "id": "CSN014",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are four reasons to wait. If the vendor is late, the date slips, and the room stays booked."
+  },
+  {
+    "id": "CSN015",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "The next steps are clear. We should talk tomorrow, maybe wait, and then decide."
+  },
+  {
+    "id": "CSN016",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "Here are the main points. I called twice, nobody answered, and the door stayed locked."
+  },
+  {
+    "id": "CSN017",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are four signals in the log. It timed out again."
+  },
+  {
+    "id": "CSN018",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "Here are the reasons we left. We were tired, the room was cold, and the train was late."
+  },
+  {
+    "id": "CSN019",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are four things in the memo. The draft was late, the tone was sharp, and the examples were thin."
+  },
+  {
+    "id": "CSN020",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "Here are the categories. Tomorrow we decide."
+  },
+  {
+    "id": "CSN021",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are four options. Or we wait, or we cut scope, or we cancel."
+  },
+  {
+    "id": "CSN022",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "Here are the next steps. Before we start, check the room, and close the door."
+  },
+  {
+    "id": "CSN023",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "There are four reasons to stop. The build was red, the dashboard was loud, and support was angry."
+  },
+  {
+    "id": "CSN024",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "The next steps are clear. I like the design, but I dislike the pacing, so I want another pass."
+  },
+  {
+    "id": "CSN025",
+    "category": "cross_sentence_negative",
+    "shouldFormatAsList": false,
+    "text": "Here are the remaining questions. We spoke for an hour, disagreed, and left without a decision."
+  }
+]

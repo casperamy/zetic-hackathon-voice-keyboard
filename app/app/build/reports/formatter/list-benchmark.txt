@@ -1,0 +1,149 @@
+            Deterministic List Formatter Benchmark
+            cases=100
+            positives=50
+            negatives=50
+            
+            confusion_matrix
+              tp=34
+              tn=42
+              fp=8
+              fn=16
+            
+            metrics
+              accuracy=76%
+              precision=81%
+              recall=68%
+              f1=74%
+              exact_positive_bullet_count_accuracy=68%
+            
+            category_breakdown
+              negative_paragraph: 18/20 (90%)
+  negative_sentence: 24/30 (80%)
+  positive_paragraph: 15/20 (75%)
+  positive_sentence: 19/30 (63%)
+            
+            mismatches
+            P011 [positive_sentence] expected=LIST predicted=PLAIN
+INPUT: She bought apples, oranges, pears, and peaches.
+OUTPUT: She bought apples, oranges, pears, and peaches.
+
+P017 [positive_sentence] expected=LIST predicted=PLAIN
+INPUT: Growth depends on acquisition, activation, retention, and revenue.
+OUTPUT: Growth depends on acquisition, activation, retention, and revenue.
+
+P018 [positive_sentence] expected=LIST predicted=PLAIN
+INPUT: The talk touched privacy, accessibility, moderation, and trust.
+OUTPUT: The talk touched privacy, accessibility, moderation, and trust.
+
+P019 [positive_sentence] expected=LIST predicted=PLAIN
+INPUT: The work spans research, prototyping, validation, and rollout.
+OUTPUT: The work spans research, prototyping, validation, and rollout.
+
+P020 [positive_sentence] expected=LIST predicted=PLAIN
+INPUT: The report highlights costs, margin, churn, and payback period.
+OUTPUT: The report highlights costs, margin, churn, and payback period.
+
+P023 [positive_sentence] expected=LIST predicted=PLAIN
+INPUT: Their menu offers ramen, curry, dumplings, and fried rice.
+OUTPUT: Their menu offers ramen, curry, dumplings, and fried rice.
+
+P024 [positive_sentence] expected=LIST predicted=PLAIN
+INPUT: The brand voice should feel warm, sharp, direct, and confident.
+OUTPUT: The brand voice should feel warm, sharp, direct, and confident.
+
+P026 [positive_sentence] expected=LIST predicted=PLAIN
+INPUT: The trial tracks sleep, mood, steps, and symptoms.
+OUTPUT: The trial tracks sleep, mood, steps, and symptoms.
+
+P027 [positive_sentence] expected=LIST predicted=PLAIN
+INPUT: The app stores drafts, settings, preferences, and cached assets.
+OUTPUT: The app stores drafts, settings, preferences, and cached assets.
+
+P029 [positive_sentence] expected=LIST predicted=PLAIN
+INPUT: The campaign used posters, email, events, and paid social.
+OUTPUT: The campaign used posters, email, events, and paid social.
+
+P030 [positive_sentence] expected=LIST predicted=PLAIN
+INPUT: Good founders balance product, hiring, finance, and story.
+OUTPUT: Good founders balance product, hiring, finance, and story.
+
+P038 [positive_paragraph] expected=LIST predicted=PLAIN
+INPUT: I want the first release to feel small and deliberate rather than busy. It should emphasize speed, clarity, resilience, and easy recovery.
+OUTPUT: I want the first release to feel small and deliberate rather than busy. It should emphasize speed, clarity, resilience, and easy recovery.
+
+P043 [positive_paragraph] expected=LIST predicted=PLAIN
+INPUT: The training session was shorter than expected, so we had time for questions. People asked about access rules, billing changes, export limits, and support hours.
+OUTPUT: The training session was shorter than expected, so we had time for questions. People asked about access rules, billing changes, export limits, and support hours.
+
+P044 [positive_paragraph] expected=LIST predicted=PLAIN
+INPUT: The report is readable now, but it still lacks some important detail. It should mention pricing pressure, conversion drops, refund reasons, and channel mix.
+OUTPUT: The report is readable now, but it still lacks some important detail. It should mention pricing pressure, conversion drops, refund reasons, and channel mix.
+
+P046 [positive_paragraph] expected=LIST predicted=PLAIN
+INPUT: After the call, I wrote down everything that still felt unresolved. The open questions concern rollout timing, beta scope, staffing needs, and legal review.
+OUTPUT: After the call, I wrote down everything that still felt unresolved. The open questions concern rollout timing, beta scope, staffing needs, and legal review.
+
+P048 [positive_paragraph] expected=LIST predicted=PLAIN
+INPUT: The memo was blunt, but the direction was finally understandable. The strategy rests on focus, speed, distribution, and cash discipline.
+OUTPUT: The memo was blunt, but the direction was finally understandable. The strategy rests on focus, speed, distribution, and cash discipline.
+
+N004 [negative_sentence] expected=PLAIN predicted=LIST
+INPUT: She said the design was bold, the copy was clear, and the pitch was late.
+OUTPUT: She said the design was:
+• bold
+• the copy was clear
+• the pitch was late
+
+N006 [negative_sentence] expected=PLAIN predicted=LIST
+INPUT: If the cache is cold, the first request can stall, which looks scary.
+OUTPUT: If the cache is:
+• cold
+• the first request can stall
+• which looks scary
+
+N009 [negative_sentence] expected=PLAIN predicted=LIST
+INPUT: My address is 240 King Street, Apartment 6B, Seattle, Washington.
+OUTPUT: My address is:
+• 240 King Street
+• Apartment 6B
+• Seattle
+• Washington
+
+N011 [negative_sentence] expected=PLAIN predicted=LIST
+INPUT: I like the app, but I hate the permission flow, so I keep restarting it.
+OUTPUT: I like:
+• the app
+• but I hate the permission flow
+• so I keep restarting it
+
+N015 [negative_sentence] expected=PLAIN predicted=LIST
+INPUT: The build was green, the dashboard was red, and nobody trusted either one.
+OUTPUT: The build was:
+• green
+• the dashboard was red
+• nobody trusted either one
+
+N019 [negative_sentence] expected=PLAIN predicted=LIST
+INPUT: Her title is Director, Product Strategy, at the new company.
+OUTPUT: Her title is:
+• Director
+• Product Strategy
+• at the new company
+
+N032 [negative_paragraph] expected=PLAIN predicted=LIST
+INPUT: The apartment is in Brooklyn, New York, above a noisy bar. At night, the windows shake, the hallway smells like smoke, and nobody sleeps well.
+OUTPUT: The apartment is:
+• in Brooklyn
+• New York
+• above a noisy bar
+
+At night, the windows shake, the hallway smells like smoke, and nobody sleeps well.
+
+N036 [negative_paragraph] expected=PLAIN predicted=LIST
+INPUT: The coffee was strong, the chairs were uncomfortable, and the projector kept buzzing. Still, the workshop turned out useful because the decisions were finally concrete.
+OUTPUT: The coffee was:
+• strong
+• the chairs were uncomfortable
+• the projector kept buzzing
+
+Still, the workshop turned out useful because the decisions were finally concrete.

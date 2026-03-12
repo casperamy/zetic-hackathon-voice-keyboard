@@ -1,0 +1,23 @@
+[
+  {
+    "id": "NASR001",
+    "category": "unsupported_lexical_noise_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "Okay, the shopping lest inclus apples, oranges, peaches, and lemons."
+  },
+  {
+    "id": "NASR002",
+    "category": "unsupported_lexical_noise_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "So, the grocery lest includes milk, eggs, bread, and butter."
+  },
+  {
+    "id": "NASR008",
+    "category": "unsupported_lexical_noise_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 7,
+    "text": "Okay, shop in Lest Inclus 5 items, apples, oranges, peaches, lemons, onions, chicken and cats."
+  }
+]

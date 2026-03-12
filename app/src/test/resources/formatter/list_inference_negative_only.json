@@ -1,0 +1,602 @@
+[
+  {
+    "id": "N001",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "The build was green, the dashboard was red, and nobody trusted either one."
+  },
+  {
+    "id": "N002",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "She looked at the chart, the room went quiet, and the meeting ended."
+  },
+  {
+    "id": "N003",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "I went to the store, bought milk, and came home."
+  },
+  {
+    "id": "N004",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "He opened the laptop, sighed, and shut it again."
+  },
+  {
+    "id": "N005",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "The room was loud, the train was late, and the phone was hot."
+  },
+  {
+    "id": "N006",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "The memo was sharp, the room was cold, and support was angry."
+  },
+  {
+    "id": "N007",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "We talked, argued, and left."
+  },
+  {
+    "id": "N008",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "The vendor was late, the scope was unclear, and support was tired."
+  },
+  {
+    "id": "N009",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "I called twice, nobody answered, and the door stayed locked."
+  },
+  {
+    "id": "N010",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "The draft was late, the tone was sharp, and the examples were thin."
+  },
+  {
+    "id": "N011",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "He stood up, thanked everyone, and walked out."
+  },
+  {
+    "id": "N012",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "The coffee was cold, the chairs were broken, and the lights kept flickering."
+  },
+  {
+    "id": "N013",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "We waited, the rain got heavier, and the bus never came."
+  },
+  {
+    "id": "N014",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "She smiled, waved, and drove away."
+  },
+  {
+    "id": "N015",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "The code compiled, the test flaked, and the deploy stalled."
+  },
+  {
+    "id": "N016",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "I packed a jacket, forgot the charger, and missed the train."
+  },
+  {
+    "id": "N017",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "The dog barked, the baby woke up, and nobody slept."
+  },
+  {
+    "id": "N018",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "They laughed, exchanged numbers, and left separately."
+  },
+  {
+    "id": "N019",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "The server rebooted, the queue drained, and the alarm finally cleared."
+  },
+  {
+    "id": "N020",
+    "category": "negative_clause_chain",
+    "shouldFormatAsList": false,
+    "text": "I sat down, opened the notebook, and forgot why I came."
+  },
+  {
+    "id": "N021",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "My address is 240 King Street, Apartment 6B, Seattle, Washington."
+  },
+  {
+    "id": "N022",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "Her title is Director, Product Strategy, at the hospital in Seattle."
+  },
+  {
+    "id": "N023",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "On Tuesday, April 9, 2026, the letter arrived."
+  },
+  {
+    "id": "N024",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "The flight leaves from Terminal 4, Gate B12, at 6:45 a.m."
+  },
+  {
+    "id": "N025",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "The office is on 8th Avenue, Floor 12, New York, New York."
+  },
+  {
+    "id": "N026",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "His role is Senior Manager, Platform Operations, for the regional team."
+  },
+  {
+    "id": "N027",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "The package was sent to 221B Baker Street, London, NW1 6XE."
+  },
+  {
+    "id": "N028",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "The event starts on Friday, March 13, 2026, at noon."
+  },
+  {
+    "id": "N029",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "Her full title is Vice President, Customer Experience, for North America."
+  },
+  {
+    "id": "N030",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "The clinic is at 500 Pine Street, Suite 400, San Francisco, California."
+  },
+  {
+    "id": "N031",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "We boarded at Gate C7, Terminal 1, just before midnight."
+  },
+  {
+    "id": "N032",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "The invitation said Wednesday, June 10, 2026, 7:30 p.m., main hall."
+  },
+  {
+    "id": "N033",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "Their address reads 17 Lake View Road, Building C, Austin, Texas."
+  },
+  {
+    "id": "N034",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "The badge says Principal Engineer, Security Infrastructure, on the second line."
+  },
+  {
+    "id": "N035",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "The hearing is set for Monday, January 5, 2027, at 9:00 a.m."
+  },
+  {
+    "id": "N036",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "The hotel is near 3rd Street, Block 9, Denver, Colorado."
+  },
+  {
+    "id": "N037",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "The routing note says Terminal 2, Level 3, Check-in Area D."
+  },
+  {
+    "id": "N038",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "His mailing address is P.O. Box 1024, Santa Fe, New Mexico."
+  },
+  {
+    "id": "N039",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "The sign read Director, Clinical Programs, outside her office."
+  },
+  {
+    "id": "N040",
+    "category": "negative_protected",
+    "shouldFormatAsList": false,
+    "text": "The file listed 120 Main Street, Unit 5, Portland, Oregon."
+  },
+  {
+    "id": "N041",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "My email is jane.doe@example.com, not the old alias."
+  },
+  {
+    "id": "N042",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The backup URL is https://api.example.com/v1/status, not the staging one."
+  },
+  {
+    "id": "N043",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "Version 1.2 shipped before 2.0, and both releases were messy."
+  },
+  {
+    "id": "N044",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The reading changed from 3.14 to 2.71, and then settled at 1.62."
+  },
+  {
+    "id": "N045",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The commit hash was a1b2c3d4, and the branch name was release/2.3."
+  },
+  {
+    "id": "N046",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "Reach me at support@example.org, or use the contact form."
+  },
+  {
+    "id": "N047",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The coordinate is 37.7749, -122.4194, on the map overlay."
+  },
+  {
+    "id": "N048",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The invoice total was $1,249.50, after tax and shipping."
+  },
+  {
+    "id": "N049",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The serial number reads SN-2048-77, Rev. B, on the label."
+  },
+  {
+    "id": "N050",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The browser opened https://docs.example.com/help, and then stalled."
+  },
+  {
+    "id": "N051",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The model name is Pixel 9 Pro, not the older device."
+  },
+  {
+    "id": "N052",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The note says use env var API_KEY, not SECRET_KEY."
+  },
+  {
+    "id": "N053",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The class name is VoiceInputMethodService, and the package is com.aaryaharkare.voicekeyboard."
+  },
+  {
+    "id": "N054",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The IP block was 10.0.0.0/24, not 10.0.1.0/24."
+  },
+  {
+    "id": "N055",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The product code is AB-204, Series C, from the old catalog."
+  },
+  {
+    "id": "N056",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The patch landed in release-2.4.1, and QA signed off."
+  },
+  {
+    "id": "N057",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The alias points to mail.example.net, not the primary MX."
+  },
+  {
+    "id": "N058",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The ticket references issue #1042, not #1043."
+  },
+  {
+    "id": "N059",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The receipt says subtotal $49.99, after tax the total is $54.11."
+  },
+  {
+    "id": "N060",
+    "category": "negative_structured_plain",
+    "shouldFormatAsList": false,
+    "text": "The date stamp read 2026.03.11, and the footer was crooked."
+  },
+  {
+    "id": "N061",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "There are three reasons this was difficult. The room was loud, the build was late, and the phone was hot."
+  },
+  {
+    "id": "N062",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "Here are the next steps. I looked at the log, shrugged, and closed the laptop."
+  },
+  {
+    "id": "N063",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "There are four things we talked about. We waited, argued, and left."
+  },
+  {
+    "id": "N064",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "Here are the points from the call. She sounded calm, the deck looked rushed, and nobody agreed."
+  },
+  {
+    "id": "N065",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "The next steps are clear. We should talk tomorrow, maybe wait, and then decide."
+  },
+  {
+    "id": "N066",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "There are four reasons to stop. The build was red, the dashboard was loud, and support was angry."
+  },
+  {
+    "id": "N067",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "There are four things on my desk. A cup is leaking, the charger is missing, and the screen is dirty."
+  },
+  {
+    "id": "N068",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "Here are the reasons we left. We were tired, the room was cold, and the train was late."
+  },
+  {
+    "id": "N069",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "There are four items in the address. 240 King Street, Apartment 6B, Seattle, Washington."
+  },
+  {
+    "id": "N070",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "There are four items in the title. Senior Manager, Platform Operations, at the hospital, in Seattle."
+  },
+  {
+    "id": "N071",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "Here are the next steps. Tomorrow we regroup."
+  },
+  {
+    "id": "N072",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "There are four reasons this feels broken. Because the audio is noisy, because the timing is off, and because the UI stutters."
+  },
+  {
+    "id": "N073",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "There are four reasons to wait. If the vendor is late, the date slips, and the room stays booked."
+  },
+  {
+    "id": "N074",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "Here are the main points. I called twice, nobody answered, and the door stayed locked."
+  },
+  {
+    "id": "N075",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "There are four things in the memo. The draft was late, the tone was sharp, and the examples were thin."
+  },
+  {
+    "id": "N076",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "Here are the next steps. Before we start, check the room, and close the door."
+  },
+  {
+    "id": "N077",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "The next steps are clear. I like the design, but I dislike the pacing, so I want another pass."
+  },
+  {
+    "id": "N078",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "There are three reasons I stayed. I was tired, the train was late, and the rain was heavy."
+  },
+  {
+    "id": "N079",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "Here are the details. On Tuesday, April 9, 2026, the letter arrived."
+  },
+  {
+    "id": "N080",
+    "category": "negative_cross_sentence",
+    "shouldFormatAsList": false,
+    "text": "The next steps are obvious. We already know the build failed, and we need to sleep."
+  },
+  {
+    "id": "N081",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Okay, I went to the store, bought milk, and came home."
+  },
+  {
+    "id": "N082",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "So, the build was green, the dashboard was red, and nobody trusted either one."
+  },
+  {
+    "id": "N083",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Right, my address is 240 King Street, Apartment 6B, Seattle, Washington."
+  },
+  {
+    "id": "N084",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Well, her title is Director, Product Strategy, at the hospital in Seattle."
+  },
+  {
+    "id": "N085",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Um, on Tuesday, April 9, 2026, the letter arrived."
+  },
+  {
+    "id": "N086",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Oh, we talked, argued, and left."
+  },
+  {
+    "id": "N087",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "But, if the vendor is late, the launch slips, and the room stays booked."
+  },
+  {
+    "id": "N088",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Okay, there are four things we talked about. We waited, argued, and left."
+  },
+  {
+    "id": "N089",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "So, here are the next steps. I looked at the log, shrugged, and closed the laptop."
+  },
+  {
+    "id": "N090",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Right, the room was loud, the build was late, and the phone was hot."
+  },
+  {
+    "id": "N091",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Well, version 1.2 shipped before 2.0, and both releases were messy."
+  },
+  {
+    "id": "N092",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Um, my email is jane.doe@example.com, not the old alias."
+  },
+  {
+    "id": "N093",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Oh, the memo was sharp, the room was cold, and support was angry."
+  },
+  {
+    "id": "N094",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "But, there are four things on my desk. A cup is leaking, the charger is missing, and the screen is dirty."
+  },
+  {
+    "id": "N095",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Okay, before we start, check the room, and close the door."
+  },
+  {
+    "id": "N096",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "So, the flight leaves from Terminal 4, Gate B12, at 6:45 a.m."
+  },
+  {
+    "id": "N097",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Right, the backup URL is https://api.example.com/v1/status, not the staging one."
+  },
+  {
+    "id": "N098",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Well, the reading changed from 3.14 to 2.71, and then settled at 1.62."
+  },
+  {
+    "id": "N099",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Um, the badge says Principal Engineer, Security Infrastructure, on the second line."
+  },
+  {
+    "id": "N100",
+    "category": "negative_noisy_plain",
+    "shouldFormatAsList": false,
+    "text": "Oh, the coordinate is 37.7749, -122.4194, on the map overlay."
+  }
+]

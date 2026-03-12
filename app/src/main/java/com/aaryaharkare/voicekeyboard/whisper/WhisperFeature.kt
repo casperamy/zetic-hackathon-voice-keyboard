@@ -33,7 +33,9 @@ class WhisperFeature(
         }
 
         val startedAt = System.nanoTime()
-        val paddedAudio = toWhisperLength(audio)
+        val trimmedAudio = WhisperAudioPreprocessor.trimTrailingSilence(audio)
+        val decodeCap = WhisperDecodePolicy.computeDecodeCap(trimmedAudio.size)
+        val paddedAudio = toWhisperLength(trimmedAudio)
 
         val featureStartedAt = System.nanoTime()
         val encodedFeatures = whisperWrapper.process(paddedAudio)
@@ -45,7 +47,7 @@ class WhisperFeature(
         val encoderOutputs = encoder.process(encodedFeatures)
         val encoderFinishedAt = System.nanoTime()
 
-        val decoderResult = decoder.generateTokens(encoderOutputs)
+        val decoderResult = decoder.generateTokens(encoderOutputs, maxDecodeTokens = decodeCap)
 
         val transcript = if (decoderResult.tokenCount == 0) {
             ""
@@ -61,20 +63,26 @@ class WhisperFeature(
         val totalMs = nanosToMillis(System.nanoTime() - startedAt)
         val metrics =
             WhisperRunMetrics(
+                trimmedAudioMs = samplesToMillis(trimmedAudio.size),
                 audioReadyToFeatureExtractionMs = nanosToMillis(featureFinishedAt - startedAt),
                 featureExtractionToEncoderMs = nanosToMillis(encoderFinishedAt - featureFinishedAt),
                 decoderTotalMs = decoderResult.decoderMs,
                 decoderSteps = decoderResult.decodeSteps,
+                decoderCap = decoderResult.decodeCap,
+                decoderStopReason = decoderResult.stopReason,
                 totalPipelineMs = totalMs,
             )
 
         if (BuildConfig.DEBUG) {
             Log.d(
                 TAG,
-                "perf audio->feature=${metrics.audioReadyToFeatureExtractionMs}ms " +
+                "perf trimmed=${metrics.trimmedAudioMs}ms " +
+                    "audio->feature=${metrics.audioReadyToFeatureExtractionMs}ms " +
                     "feature->encoder=${metrics.featureExtractionToEncoderMs}ms " +
                     "decoder=${metrics.decoderTotalMs}ms " +
-                    "steps=${metrics.decoderSteps} total=${metrics.totalPipelineMs}ms",
+                    "steps=${metrics.decoderSteps}/${metrics.decoderCap} " +
+                    "stop=${metrics.decoderStopReason.name.lowercase()} " +
+                    "total=${metrics.totalPipelineMs}ms",
             )
         }
 
@@ -123,21 +131,28 @@ class WhisperFeature(
 
     private fun nanosToMillis(nanos: Long): Long = nanos / 1_000_000L
 
+    private fun samplesToMillis(sampleCount: Int): Long =
+        (sampleCount.toLong() * 1_000L) / AUDIO_SAMPLE_RATE
+
     data class WhisperRunResult(
         val transcript: String,
         val metrics: WhisperRunMetrics,
     )
 
     data class WhisperRunMetrics(
+        val trimmedAudioMs: Long,
         val audioReadyToFeatureExtractionMs: Long,
         val featureExtractionToEncoderMs: Long,
         val decoderTotalMs: Long,
         val decoderSteps: Int,
+        val decoderCap: Int,
+        val decoderStopReason: WhisperDecodePolicy.StopReason,
         val totalPipelineMs: Long,
     )
 
     companion object {
         private const val TAG = "VoiceKB"
+        private const val AUDIO_SAMPLE_RATE = 16_000
         const val MIN_AUDIO_SAMPLES = 4_000
         private const val WHISPER_AUDIO_SAMPLES = 480_000 // 30 seconds at 16 kHz
     }

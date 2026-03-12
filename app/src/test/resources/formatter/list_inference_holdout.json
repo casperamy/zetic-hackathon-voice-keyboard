@@ -1,0 +1,237 @@
+[
+  {
+    "id": "H001",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "The response plan includes rollback prep, customer messaging, status updates, and postmortem notes."
+  },
+  {
+    "id": "H002",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "The workshop covers research framing, interview practice, synthesis methods, and reporting."
+  },
+  {
+    "id": "H003",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "The redesign depends on cleaner navigation, calmer spacing, sharper hierarchy, and better defaults."
+  },
+  {
+    "id": "H004",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "The interview focused on constraints, incentives, timelines, and ownership."
+  },
+  {
+    "id": "H005",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "The strongest signals were retention, referrals, repeat orders, and margin."
+  },
+  {
+    "id": "H006",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "The launch memo should mention pricing logic, support ownership, rollout order, and refund handling."
+  },
+  {
+    "id": "H007",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "The pantry contains rice, beans, canned tomatoes, and olive oil."
+  },
+  {
+    "id": "H008",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "The plan rests on speed, focus, distribution, and discipline."
+  },
+  {
+    "id": "H009",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "This release handles search recovery, session expiry, draft sync, and keyboard dismissal."
+  },
+  {
+    "id": "H010",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "The call highlighted procurement delays, staffing risk, scope drift, and vague ownership."
+  },
+  {
+    "id": "H011",
+    "category": "holdout_existing_numbered_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "1. Audit the current prompts.\n2. Remove duplicate states.\n3. Recheck the permission wording.\n4. Measure latency again."
+  },
+  {
+    "id": "H012",
+    "category": "holdout_existing_numbered_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 3,
+    "text": "1) Collect the logs.\n2) Compare the traces\n   across the failing devices.\n3) Write the summary."
+  },
+  {
+    "id": "H013",
+    "category": "holdout_existing_bulleted_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 3,
+    "text": "* Review the timeout values.\n* Confirm the fallback copy.\n* Check the onboarding order."
+  },
+  {
+    "id": "H014",
+    "category": "holdout_paragraph_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "We are finally aligned on the direction, which was the hard part. The remaining concerns are staffing gaps, vendor timing, migration risk, and launch support."
+  },
+  {
+    "id": "H015",
+    "category": "holdout_paragraph_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "The product already feels stable enough for a wider beta. It should emphasize reliability, speed, clarity, and recovery."
+  },
+  {
+    "id": "H016",
+    "category": "holdout_prose_negative",
+    "shouldFormatAsList": false,
+    "text": "He opened the document, skimmed the intro, and closed the laptop."
+  },
+  {
+    "id": "H017",
+    "category": "holdout_prose_negative",
+    "shouldFormatAsList": false,
+    "text": "The apartment in Denver, Colorado, overlooks a busy street."
+  },
+  {
+    "id": "H018",
+    "category": "holdout_prose_negative",
+    "shouldFormatAsList": false,
+    "text": "She said the prototype was charming, the roadmap was vague, and the budget was thin."
+  },
+  {
+    "id": "H019",
+    "category": "holdout_prose_negative",
+    "shouldFormatAsList": false,
+    "text": "If the token is stale, the next request fails, which makes the screen flicker."
+  },
+  {
+    "id": "H020",
+    "category": "holdout_prose_negative",
+    "shouldFormatAsList": false,
+    "text": "My title is Senior Manager, Platform Operations, at the hospital."
+  },
+  {
+    "id": "H021",
+    "category": "holdout_prose_negative",
+    "shouldFormatAsList": false,
+    "text": "The letter arrived on Tuesday, April 9, 2026, after a long delay."
+  },
+  {
+    "id": "H022",
+    "category": "holdout_prose_negative",
+    "shouldFormatAsList": false,
+    "text": "I like the direction, but I dislike the pacing, so I want another pass."
+  },
+  {
+    "id": "H023",
+    "category": "holdout_existing_numbered_negative",
+    "shouldFormatAsList": false,
+    "text": "Room 3.2 is down the hall, next to Lab 4.1."
+  },
+  {
+    "id": "H024",
+    "category": "holdout_existing_numbered_negative",
+    "shouldFormatAsList": false,
+    "text": "2.5 days later the parts finally arrived."
+  },
+  {
+    "id": "H025",
+    "category": "holdout_paragraph_negative",
+    "shouldFormatAsList": false,
+    "text": "We thought the incident was over, but the alerts came back at midnight. The dashboard turned red, the room went silent, and nobody trusted the first diagnosis."
+  },
+  {
+    "id": "H026",
+    "category": "holdout_paragraph_negative",
+    "shouldFormatAsList": false,
+    "text": "The apartment is in Portland, Oregon, near the river and under a flight path. At night, the windows rattle, the hallway echoes, and the dog refuses to sleep."
+  },
+  {
+    "id": "H027",
+    "category": "holdout_prose_negative",
+    "shouldFormatAsList": false,
+    "text": "Please email hello@example.com, cc ops@example.com, and wait for a reply."
+  },
+  {
+    "id": "H028",
+    "category": "holdout_prose_negative",
+    "shouldFormatAsList": false,
+    "text": "She looked at the notes, shrugged, and walked out without a word."
+  },
+  {
+    "id": "H029",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "Design, development, marketing, and sales."
+  },
+  {
+    "id": "H030",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "Reliability, latency, clarity, and recovery."
+  },
+  {
+    "id": "H031",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "The sprint highlighted latency spikes, retry storms, cache churn, and noisy alerts."
+  },
+  {
+    "id": "H032",
+    "category": "holdout_prose_positive",
+    "shouldFormatAsList": true,
+    "expectedBulletCount": 4,
+    "text": "The audit mentions access drift, stale roles, missing owners, and weak logs."
+  },
+  {
+    "id": "H033",
+    "category": "holdout_prose_negative",
+    "shouldFormatAsList": false,
+    "text": "The backup URL is https://api.example.com/v1/status, not the staging one."
+  },
+  {
+    "id": "H034",
+    "category": "holdout_prose_negative",
+    "shouldFormatAsList": false,
+    "text": "Version 1.2 shipped before 2.0, and both releases were messy."
+  },
+  {
+    "id": "H035",
+    "category": "holdout_prose_negative",
+    "shouldFormatAsList": false,
+    "text": "The office is on 8th Avenue, Floor 12, New York, New York."
+  },
+  {
+    "id": "H036",
+    "category": "holdout_paragraph_negative",
+    "shouldFormatAsList": false,
+    "text": "There are four themes in the feedback. She sounded calm, the deck looked rushed, and nobody agreed."
+  }
+]

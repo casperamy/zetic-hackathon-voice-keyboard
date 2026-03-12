@@ -49,6 +49,7 @@ class WhisperDecoder(
         var generatedCount = 0
         var decodeSteps = 0
         var tokenPosition = 1
+        var stopReason = WhisperDecodePolicy.StopReason.CAP
 
         while (generatedCount < decodeCap && tokenPosition < MODEL_SEQUENCE_LENGTH) {
             val logits = decodeStep(modelInputs, tokenPosition - 1)
@@ -56,9 +57,12 @@ class WhisperDecoder(
 
             val nextToken = ProbabilityUtils.argmax(logits)
             if (nextToken == endToken) {
+                stopReason = WhisperDecodePolicy.StopReason.EOS
                 break
             }
-            if (shouldStopForRepetition(generated, generatedCount, nextToken)) {
+            val repetitionStopReason = WhisperDecodePolicy.repetitionStopReason(generated, generatedCount, nextToken)
+            if (repetitionStopReason != null) {
+                stopReason = repetitionStopReason
                 break
             }
 
@@ -75,6 +79,8 @@ class WhisperDecoder(
             tokenCount = generatedCount,
             decodeSteps = decodeSteps,
             decoderMs = nanosToMillis(System.nanoTime() - startedAt),
+            decodeCap = decodeCap,
+            stopReason = stopReason,
         )
     }
 
@@ -126,33 +132,6 @@ class WhisperDecoder(
         }
     }
 
-    private fun shouldStopForRepetition(
-        generated: IntArray,
-        generatedCount: Int,
-        nextToken: Int,
-    ): Boolean {
-        if (generatedCount >= 2) {
-            val prev = generated[generatedCount - 1]
-            val prev2 = generated[generatedCount - 2]
-            if (nextToken == prev && prev == prev2) {
-                return true
-            }
-        }
-
-        if (generatedCount >= 5) {
-            val a = generated[generatedCount - 1]
-            val b = generated[generatedCount - 2]
-            val aPrev = generated[generatedCount - 3]
-            val bPrev = generated[generatedCount - 4]
-            val aPrev2 = generated[generatedCount - 5]
-            if (nextToken == a && a == aPrev && a == aPrev2 && b == bPrev) {
-                return true
-            }
-        }
-
-        return false
-    }
-
     private fun nanosToMillis(nanos: Long): Long = nanos / 1_000_000L
 
     data class DecoderRunResult(
@@ -160,6 +139,8 @@ class WhisperDecoder(
         val tokenCount: Int,
         val decodeSteps: Int,
         val decoderMs: Long,
+        val decodeCap: Int,
+        val stopReason: WhisperDecodePolicy.StopReason,
     )
 
     companion object {
@@ -167,7 +148,7 @@ class WhisperDecoder(
         private const val START_TOKEN = 50258
         private const val END_TOKEN = 50257
         private const val MODEL_SEQUENCE_LENGTH = 448
-        private const val DEFAULT_MAX_DECODE_TOKENS = 128
+        private const val DEFAULT_MAX_DECODE_TOKENS = 96
         private const val VOCAB_SIZE = 51865
         private const val BATCH_SIZE = 2
     }
