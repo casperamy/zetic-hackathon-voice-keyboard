@@ -13,13 +13,10 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.aaryaharkare.voicekeyboard.formatter.FormatterLlmPipeline
-import com.aaryaharkare.voicekeyboard.formatter.FormatterMode
-import com.aaryaharkare.voicekeyboard.formatter.FormatterSettings
 import com.zeticai.mlange.core.model.ModelLoadingStatus
 import com.aaryaharkare.voicekeyboard.whisper.WhisperPipeline
 import kotlinx.coroutines.runBlocking
@@ -30,9 +27,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusPermission: TextView
     private lateinit var statusModel: TextView
     private lateinit var statusFormatter: TextView
-    private lateinit var formatterToggle: SwitchCompat
-
-    private val formatterSettings by lazy { FormatterSettings.fromContext(applicationContext) }
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -55,7 +49,6 @@ class MainActivity : AppCompatActivity() {
         statusPermission = findViewById(R.id.statusPermission)
         statusModel = findViewById(R.id.statusModel)
         statusFormatter = findViewById(R.id.statusFormatter)
-        formatterToggle = findViewById(R.id.formatterToggle)
 
         findViewById<Button>(R.id.btnEnable).setOnClickListener {
             val intent = Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
@@ -78,12 +71,6 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnLoadFormatterModel).setOnClickListener {
             preloadFormatterModel()
-        }
-
-        formatterToggle.setOnCheckedChangeListener { _, isChecked ->
-            val formatterMode = if (isChecked) FormatterMode.ZETIC_LLM else FormatterMode.DETERMINISTIC
-            formatterSettings.setMode(formatterMode)
-            applyFormatterStatus()
         }
 
         applyModelStatus()
@@ -161,14 +148,6 @@ class MainActivity : AppCompatActivity() {
         val preloadFormatterButton = findViewById<Button>(R.id.btnLoadFormatterModel)
         preloadFormatterButton.text = "5. Preload Formatter LLM"
 
-        formatterToggle.setOnCheckedChangeListener(null)
-        formatterToggle.isChecked = formatterSettings.getMode() == FormatterMode.ZETIC_LLM
-        formatterToggle.setOnCheckedChangeListener { _, isChecked ->
-            val formatterMode = if (isChecked) FormatterMode.ZETIC_LLM else FormatterMode.DETERMINISTIC
-            formatterSettings.setMode(formatterMode)
-            applyFormatterStatus()
-        }
-
         applyModelStatus()
         applyFormatterStatus()
     }
@@ -200,13 +179,6 @@ class MainActivity : AppCompatActivity() {
         warmupMs: Long? = null,
         errorMessage: String? = null,
     ) {
-        val formatterMode = formatterSettings.getMode()
-        if (formatterMode != FormatterMode.ZETIC_LLM) {
-            statusFormatter.text = "Formatter LLM: disabled"
-            statusFormatter.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray))
-            return
-        }
-
         val snapshot = FormatterLlmPipeline.snapshot()
         val text =
             when {

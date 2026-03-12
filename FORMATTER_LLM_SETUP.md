@@ -11,9 +11,9 @@ FORMATTER_LLM_MODE=RUN_AUTO
 
 App behavior:
 
-- `Use Zetic LLM formatter` in the setup screen switches the IME formatter between deterministic rules and the Zetic LLM path.
+- The IME uses the Zetic LLM formatter by default for format-eligible text fields.
 - `Preload Formatter LLM` downloads and warms the configured formatter model before keyboard testing.
-- When the toggle is on, formatter failures are treated as hard failures. The IME does not fall back to deterministic formatting for that utterance.
+- Formatter failures are treated as hard failures. The IME does not fall back to another formatter for that utterance.
 
 Fold 6 contingency:
 

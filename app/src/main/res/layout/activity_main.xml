@@ -51,7 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Formatter LLM: disabled"
+        android:text="Formatter LLM: not loaded"
         android:textColor="#FF9800" />
 
     <Button
@@ -82,18 +82,11 @@
         android:layout_marginTop="12dp"
         android:text="4. Preload Whisper" />
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/formatterToggle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Use Zetic LLM formatter" />
-
     <Button
         android:id="@+id/btnLoadFormatterModel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="16dp"
         android:text="5. Preload Formatter LLM" />
 
 </LinearLayout>

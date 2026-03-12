@@ -15,12 +15,8 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.aaryaharkare.voicekeyboard.audio.AudioSampler
-import com.aaryaharkare.voicekeyboard.formatter.DeterministicListFormatter
-import com.aaryaharkare.voicekeyboard.formatter.FormatterEngineSelector
 import com.aaryaharkare.voicekeyboard.formatter.FormatterLlmPipeline
-import com.aaryaharkare.voicekeyboard.formatter.FormatterMode
 import com.aaryaharkare.voicekeyboard.formatter.FormatterResult
-import com.aaryaharkare.voicekeyboard.formatter.FormatterSettings
 import com.aaryaharkare.voicekeyboard.formatter.ZeticLlmFormatter
 import com.aaryaharkare.voicekeyboard.whisper.WhisperFeature
 import com.aaryaharkare.voicekeyboard.whisper.WhisperPipeline
@@ -65,15 +61,7 @@ class VoiceInputMethodService : InputMethodService() {
     private var currentInputType: Int = 0
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val sessionId = AtomicLong(0L)
-    private val formatterSettings by lazy { FormatterSettings.fromContext(applicationContext) }
-    private val deterministicFormatter = DeterministicListFormatter()
     private val zeticLlmFormatter by lazy { ZeticLlmFormatter(applicationContext) }
-    private val formatterEngineSelector by lazy {
-        FormatterEngineSelector(
-            deterministicEngine = deterministicFormatter,
-            zeticLlmEngine = zeticLlmFormatter,
-        )
-    }
 
     override fun onCreateInputView(): View {
         val view = layoutInflater.inflate(R.layout.keyboard_view, null)
@@ -420,10 +408,6 @@ class VoiceInputMethodService : InputMethodService() {
             return null
         }
 
-        if (formatterSettings.getMode() != FormatterMode.ZETIC_LLM) {
-            return null
-        }
-
         val snapshot = FormatterLlmPipeline.snapshot()
         return when {
             snapshot.ready -> null
@@ -526,9 +510,7 @@ class VoiceInputMethodService : InputMethodService() {
             return FormattingExecutionResult(formattedOutput = text, formatterResult = null)
         }
 
-        val formatterMode = formatterSettings.getMode()
-        val formatterEngine = formatterEngineSelector.select(formatterMode)
-        val formatterResult = formatterEngine.format(text)
+        val formatterResult = zeticLlmFormatter.format(text)
         return FormattingExecutionResult(
             formattedOutput = formatterResult.formattedText,
             formatterResult = formatterResult,
