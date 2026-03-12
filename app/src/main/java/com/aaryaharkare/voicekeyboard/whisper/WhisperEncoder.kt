@@ -1,7 +1,7 @@
 package com.aaryaharkare.voicekeyboard.whisper
 
 import android.content.Context
-import com.zeticai.mlange.core.model.Target
+import com.zeticai.mlange.core.model.ModelMode
 import com.zeticai.mlange.core.model.ZeticMLangeModel
 import com.zeticai.mlange.core.tensor.DataType
 import com.zeticai.mlange.core.tensor.Tensor
@@ -13,7 +13,7 @@ class WhisperEncoder(
     personalKey: String,
     modelKey: String,
 ) {
-    private val model = ZeticMLangeModel(context, personalKey, modelKey, target = Target.ORT)
+    private val model = ZeticMLangeModel(context, personalKey, modelKey, modelMode = ModelMode.RUN_AUTO)
     private val batchedInput = FloatArray(BATCH_SIZE * FEATURES_PER_SAMPLE)
     private val inputBuffer =
         ByteBuffer.allocateDirect(batchedInput.size * Float.SIZE_BYTES).order(ByteOrder.LITTLE_ENDIAN)
