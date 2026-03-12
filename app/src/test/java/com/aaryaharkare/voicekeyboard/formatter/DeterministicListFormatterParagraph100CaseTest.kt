@@ -17,7 +17,7 @@ class DeterministicListFormatterParagraph100CaseTest {
 
         val results =
             cases.map { case ->
-                val output = formatter.format(case.text)
+                val output = formatter.formatText(case.text)
                 ParagraphResult(
                     case = case,
                     output = output,

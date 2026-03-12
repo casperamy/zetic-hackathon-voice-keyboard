@@ -2,7 +2,20 @@ package com.aaryaharkare.voicekeyboard.formatter
 
 class DeterministicListFormatter : FormatterEngine {
 
-    override fun format(text: String): String = analyze(text).formattedText
+    override suspend fun format(text: String): FormatterResult {
+        return formatResult(text)
+    }
+
+    internal fun formatResult(text: String): FormatterResult {
+        val analysis = analyze(text)
+        return FormatterResult(
+            formattedText = analysis.formattedText,
+            mode = FormatterMode.DETERMINISTIC,
+            debugTrace = buildDebugTrace(analysis),
+        )
+    }
+
+    fun formatText(text: String): String = analyze(text).formattedText
 
     internal fun analyze(text: String): FormatAnalysis {
         val normalizedInput = preNormalize(text)

@@ -16,7 +16,12 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.aaryaharkare.voicekeyboard.audio.AudioSampler
 import com.aaryaharkare.voicekeyboard.formatter.DeterministicListFormatter
-import com.aaryaharkare.voicekeyboard.formatter.FormatterEngine
+import com.aaryaharkare.voicekeyboard.formatter.FormatterEngineSelector
+import com.aaryaharkare.voicekeyboard.formatter.FormatterLlmPipeline
+import com.aaryaharkare.voicekeyboard.formatter.FormatterMode
+import com.aaryaharkare.voicekeyboard.formatter.FormatterResult
+import com.aaryaharkare.voicekeyboard.formatter.FormatterSettings
+import com.aaryaharkare.voicekeyboard.formatter.ZeticLlmFormatter
 import com.aaryaharkare.voicekeyboard.whisper.WhisperFeature
 import com.aaryaharkare.voicekeyboard.whisper.WhisperPipeline
 import kotlinx.coroutines.CoroutineScope
@@ -35,8 +40,11 @@ class VoiceInputMethodService : InputMethodService() {
     private enum class ImeState {
         IDLE,
         RECORDING,
-        PROCESSING,
-        DISABLED,
+        PROCESSING_STT,
+        PROCESSING_FORMAT,
+        COMMITTING,
+        ERROR,
+        DISABLED_FOR_FIELD,
     }
 
     private var currentState = ImeState.IDLE
@@ -53,10 +61,19 @@ class VoiceInputMethodService : InputMethodService() {
     private var lastRawOutput: String? = null
     private var lastWhisperOutput: String? = null
     private var lastFormattedOutput: String? = null
+    private var lastErrorMessage: String? = null
     private var currentInputType: Int = 0
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val sessionId = AtomicLong(0L)
-    private val formatterEngine: FormatterEngine = DeterministicListFormatter()
+    private val formatterSettings by lazy { FormatterSettings.fromContext(applicationContext) }
+    private val deterministicFormatter = DeterministicListFormatter()
+    private val zeticLlmFormatter by lazy { ZeticLlmFormatter(applicationContext) }
+    private val formatterEngineSelector by lazy {
+        FormatterEngineSelector(
+            deterministicEngine = deterministicFormatter,
+            zeticLlmEngine = zeticLlmFormatter,
+        )
+    }
 
     override fun onCreateInputView(): View {
         val view = layoutInflater.inflate(R.layout.keyboard_view, null)
@@ -88,7 +105,7 @@ class VoiceInputMethodService : InputMethodService() {
         sessionId.incrementAndGet()
         stopRecording()
         stopBackspaceRepeater()
-        if (currentState != ImeState.DISABLED) {
+        if (currentState != ImeState.DISABLED_FOR_FIELD) {
             currentState = ImeState.IDLE
         }
         updateUi()
@@ -105,12 +122,15 @@ class VoiceInputMethodService : InputMethodService() {
     private fun resetToInitialState(info: EditorInfo?) {
         stopRecording()
         currentInputType = info?.inputType ?: 0
+        lastTranscript = null
+        lastPerfSummary = null
         lastRawOutput = null
         lastWhisperOutput = null
         lastFormattedOutput = null
+        lastErrorMessage = null
         currentState =
             if (isPasswordField(currentInputType)) {
-                ImeState.DISABLED
+                ImeState.DISABLED_FOR_FIELD
             } else {
                 ImeState.IDLE
             }
@@ -131,7 +151,12 @@ class VoiceInputMethodService : InputMethodService() {
     }
 
     private fun handleMicClick() {
-        if (currentState == ImeState.DISABLED || currentState == ImeState.PROCESSING) {
+        if (
+            currentState == ImeState.DISABLED_FOR_FIELD ||
+            currentState == ImeState.PROCESSING_STT ||
+            currentState == ImeState.PROCESSING_FORMAT ||
+            currentState == ImeState.COMMITTING
+        ) {
             return
         }
 
@@ -140,14 +165,25 @@ class VoiceInputMethodService : InputMethodService() {
             return
         }
 
+        val blockingReason = currentModelBlockingReason()
+        if (blockingReason != null) {
+            currentState = ImeState.IDLE
+            updateUi()
+            return
+        }
+
         when (currentState) {
-            ImeState.IDLE -> startRecording()
+            ImeState.IDLE, ImeState.ERROR -> startRecording()
             ImeState.RECORDING -> {
-                currentState = ImeState.PROCESSING
+                currentState = ImeState.PROCESSING_STT
                 updateUi()
                 stopRecording()
             }
-            ImeState.PROCESSING, ImeState.DISABLED -> Unit
+            ImeState.PROCESSING_STT,
+            ImeState.PROCESSING_FORMAT,
+            ImeState.COMMITTING,
+            ImeState.DISABLED_FOR_FIELD,
+            -> Unit
         }
     }
 
@@ -211,12 +247,13 @@ class VoiceInputMethodService : InputMethodService() {
 
     private fun startRecording() {
         try {
+            lastErrorMessage = null
             currentState = ImeState.RECORDING
             updateUi()
             audioSampler?.startRecording()
         } catch (e: Exception) {
-            currentState = ImeState.IDLE
-            statusText?.text = "Recording failed"
+            currentState = ImeState.ERROR
+            lastErrorMessage = "Recording failed"
             updateUi()
         }
     }
@@ -237,6 +274,7 @@ class VoiceInputMethodService : InputMethodService() {
                 lastRawOutput = null
                 lastWhisperOutput = null
                 lastFormattedOutput = null
+                lastErrorMessage = null
                 updateUi()
             }
             return
@@ -251,39 +289,42 @@ class VoiceInputMethodService : InputMethodService() {
                 lastRawOutput = null
                 lastWhisperOutput = null
                 lastFormattedOutput = null
+                lastErrorMessage = null
                 updateUi()
             }
             return
         }
 
         serviceScope.launch(Dispatchers.Default) {
+            var rawOutput = ""
+            var whisperOutput = ""
             try {
                 val runResult = WhisperPipeline.get(applicationContext).runWithMetrics(audioSamples)
-                val rawOutput = runResult.transcript
-                val whisperOutput = rawOutput.trim()
+                rawOutput = runResult.transcript
+                whisperOutput = rawOutput.trim()
+
+                withContext(Dispatchers.Main) {
+                    if (activeSession != sessionId.get()) return@withContext
+                    currentState = ImeState.PROCESSING_FORMAT
+                    updateUi()
+                }
+
+                val formattingStartedAt = System.nanoTime()
+                val formattingExecution = formatForCurrentField(whisperOutput)
+                val formatterMs = nanosToMillis(System.nanoTime() - formattingStartedAt)
 
                 withContext(Dispatchers.Main) {
                     if (activeSession != sessionId.get()) return@withContext
 
+                    currentState = ImeState.COMMITTING
+                    updateUi()
+
                     val commitStarted = System.nanoTime()
                     lastRawOutput = rawOutput
                     lastWhisperOutput = whisperOutput
-                    val formatter = formatterEngine as? DeterministicListFormatter
-                    val formatterAnalysis =
-                        if (shouldApplyFormatting(currentInputType)) {
-                            formatter?.analyze(whisperOutput)
-                        } else {
-                            null
-                        }
-                    val formattedOutput =
-                        if (formatterAnalysis != null) {
-                            formatterAnalysis.formattedText
-                        } else if (shouldApplyFormatting(currentInputType)) {
-                            formatterEngine.format(whisperOutput)
-                        } else {
-                            whisperOutput
-                        }
+                    val formattedOutput = formattingExecution.formattedOutput
                     lastFormattedOutput = formattedOutput
+                    lastErrorMessage = null
 
                     if (formattedOutput.isNotBlank()) {
                         currentInputConnection?.commitText(formattedOutput, 1)
@@ -291,9 +332,7 @@ class VoiceInputMethodService : InputMethodService() {
                         logWhisperTrace(
                             rawOutput = rawOutput,
                             whisperOutput = whisperOutput,
-                            formattedOutput = formattedOutput,
-                            formatterAnalysis = formatterAnalysis,
-                            formatter = formatter,
+                            formattingExecution = formattingExecution,
                         )
                     } else {
                         lastTranscript = "No speech detected"
@@ -305,6 +344,7 @@ class VoiceInputMethodService : InputMethodService() {
                             "a->f ${runResult.metrics.audioReadyToFeatureExtractionMs}ms " +
                             "f->e ${runResult.metrics.featureExtractionToEncoderMs}ms " +
                             "d ${runResult.metrics.decoderTotalMs}ms/${runResult.metrics.decoderSteps}/${runResult.metrics.decoderCap}/${runResult.metrics.decoderStopReason.name.lowercase()} " +
+                            "fmt ${formattingExecution.modeLabel()}/${formatterMs}ms/${formattingExecution.generatedTokensLabel()} " +
                             "c ${commitMs}ms t ${runResult.metrics.totalPipelineMs}ms"
 
                     if (BuildConfig.DEBUG) {
@@ -315,14 +355,15 @@ class VoiceInputMethodService : InputMethodService() {
                     updateUi()
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Transcription failed", e)
+                Log.e(TAG, "Voice processing failed", e)
                 withContext(Dispatchers.Main) {
                     if (activeSession != sessionId.get()) return@withContext
-                    currentState = ImeState.IDLE
-                    lastTranscript = "Error: ${e.message ?: "Transcription failed"}"
+                    currentState = ImeState.ERROR
+                    lastErrorMessage = e.message ?: "Processing failed"
+                    lastTranscript = "Error: ${e.message ?: "Processing failed"}"
                     lastPerfSummary = null
-                    lastRawOutput = null
-                    lastWhisperOutput = null
+                    lastRawOutput = rawOutput.takeIf { it.isNotBlank() }
+                    lastWhisperOutput = whisperOutput.takeIf { it.isNotBlank() }
                     lastFormattedOutput = null
                     updateUi()
                 }
@@ -370,10 +411,33 @@ class VoiceInputMethodService : InputMethodService() {
         }
     }
 
+    private fun currentModelBlockingReason(): String? {
+        if (!WhisperPipeline.isWarmupDone()) {
+            return "Preload Whisper in setup"
+        }
+
+        if (!shouldApplyFormatting(currentInputType)) {
+            return null
+        }
+
+        if (formatterSettings.getMode() != FormatterMode.ZETIC_LLM) {
+            return null
+        }
+
+        val snapshot = FormatterLlmPipeline.snapshot()
+        return when {
+            snapshot.ready -> null
+            snapshot.lastErrorMessage != null -> "Formatter LLM error"
+            snapshot.loadingStatus in FORMATTER_LOADING_STATUSES -> "Formatter LLM loading..."
+            else -> "Preload Formatter LLM in setup"
+        }
+    }
+
     private fun updateUi() {
         val status = statusText ?: return
         val transcript = debugTranscript
         val mic = micBubble ?: return
+        val modelBlockingReason = currentModelBlockingReason()
 
         val debugText = buildString {
             val transcriptText = lastTranscript.orEmpty().trim()
@@ -381,6 +445,7 @@ class VoiceInputMethodService : InputMethodService() {
             val rawText = if (BuildConfig.DEBUG) lastRawOutput.orEmpty().trim() else ""
             val whisperText = if (BuildConfig.DEBUG) lastWhisperOutput.orEmpty().trim() else ""
             val formattedText = if (BuildConfig.DEBUG) lastFormattedOutput.orEmpty().trim() else ""
+            val errorText = lastErrorMessage.orEmpty().trim()
 
             if (BuildConfig.DEBUG) {
                 if (rawText.isNotBlank()) {
@@ -396,9 +461,13 @@ class VoiceInputMethodService : InputMethodService() {
                 }
                 if (isEmpty() && transcriptText.isNotBlank()) {
                     append(transcriptText)
+                } else if (isEmpty() && errorText.isNotBlank()) {
+                    append(errorText)
                 }
             } else if (transcriptText.isNotBlank()) {
                 append(transcriptText)
+            } else if (errorText.isNotBlank()) {
+                append(errorText)
             }
             if (perfText.isNotBlank()) {
                 if (isNotEmpty()) append('\n')
@@ -416,18 +485,33 @@ class VoiceInputMethodService : InputMethodService() {
 
         when (currentState) {
             ImeState.IDLE -> {
-                status.text = "Tap to speak"
-                mic.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#2196F3"))
+                status.text = modelBlockingReason ?: "Tap to speak"
+                mic.backgroundTintList =
+                    ColorStateList.valueOf(
+                        Color.parseColor(if (modelBlockingReason == null) "#2196F3" else "#BDBDBD"),
+                    )
             }
             ImeState.RECORDING -> {
                 status.text = "Listening..."
                 mic.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F44336"))
             }
-            ImeState.PROCESSING -> {
-                status.text = "Processing..."
+            ImeState.PROCESSING_STT -> {
+                status.text = "Transcribing..."
                 mic.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FF9800"))
             }
-            ImeState.DISABLED -> {
+            ImeState.PROCESSING_FORMAT -> {
+                status.text = "Formatting..."
+                mic.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FF9800"))
+            }
+            ImeState.COMMITTING -> {
+                status.text = "Committing..."
+                mic.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4CAF50"))
+            }
+            ImeState.ERROR -> {
+                status.text = lastErrorMessage ?: "Voice input failed"
+                mic.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D32F2F"))
+            }
+            ImeState.DISABLED_FOR_FIELD -> {
                 status.text = "Voice input unavailable"
                 mic.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#BDBDBD"))
                 transcript?.visibility = View.GONE
@@ -437,23 +521,34 @@ class VoiceInputMethodService : InputMethodService() {
 
     private fun nanosToMillis(nanos: Long): Long = nanos / 1_000_000L
 
+    private suspend fun formatForCurrentField(text: String): FormattingExecutionResult {
+        if (!shouldApplyFormatting(currentInputType)) {
+            return FormattingExecutionResult(formattedOutput = text, formatterResult = null)
+        }
+
+        val formatterMode = formatterSettings.getMode()
+        val formatterEngine = formatterEngineSelector.select(formatterMode)
+        val formatterResult = formatterEngine.format(text)
+        return FormattingExecutionResult(
+            formattedOutput = formatterResult.formattedText,
+            formatterResult = formatterResult,
+        )
+    }
+
     private fun logWhisperTrace(
         rawOutput: String,
         whisperOutput: String,
-        formattedOutput: String,
-        formatterAnalysis: DeterministicListFormatter.FormatAnalysis?,
-        formatter: DeterministicListFormatter?,
+        formattingExecution: FormattingExecutionResult,
     ) {
         if (!BuildConfig.DEBUG) return
 
         Log.d(TAG, "whisper_trace")
         logLong(TAG, "whisper_trace raw", rawOutput)
         logLong(TAG, "whisper_trace whisper", whisperOutput)
-        logLong(TAG, "whisper_trace final_commit", formattedOutput)
-        if (formatter != null && formatterAnalysis != null) {
-            formatter.buildDebugTrace(formatterAnalysis).forEachIndexed { index, line ->
-                logLong(TAG, "formatter_trace ${index + 1}", line)
-            }
+        logLong(TAG, "whisper_trace final_commit", formattingExecution.formattedOutput)
+        logLong(TAG, "formatter_trace summary", formattingExecution.traceSummary())
+        formattingExecution.formatterResult?.debugTrace?.forEachIndexed { index, line ->
+            logLong(TAG, "formatter_trace ${index + 1}", line)
         }
     }
 
@@ -489,5 +584,41 @@ class VoiceInputMethodService : InputMethodService() {
         private const val BACKSPACE_LINEAR_ACCELERATION_MS = 4L
         private const val BACKSPACE_QUADRATIC_ACCELERATION_MS = 2L
         private const val BACKSPACE_MIN_INTERVAL_MS = 24L
+        private val FORMATTER_LOADING_STATUSES =
+            setOf(
+                com.zeticai.mlange.core.model.ModelLoadingStatus.PENDING,
+                com.zeticai.mlange.core.model.ModelLoadingStatus.DOWNLOADING,
+                com.zeticai.mlange.core.model.ModelLoadingStatus.TRANSFERRING,
+                com.zeticai.mlange.core.model.ModelLoadingStatus.WAITING_FOR_WIFI,
+                com.zeticai.mlange.core.model.ModelLoadingStatus.REQUIRES_USER_CONFIRMATION,
+            )
+    }
+
+    private data class FormattingExecutionResult(
+        val formattedOutput: String,
+        val formatterResult: FormatterResult?,
+    ) {
+        fun modeLabel(): String = formatterResult?.mode?.name?.lowercase() ?: "bypass"
+
+        fun generatedTokensLabel(): String = formatterResult?.generatedTokens?.toString() ?: "-"
+
+        fun traceSummary(): String {
+            val result = formatterResult ?: return "mode=bypass"
+            return buildString {
+                append("mode=").append(result.mode.name.lowercase())
+                result.modelKey?.let {
+                    append(" model_key=").append(it)
+                }
+                result.promptTokens?.let {
+                    append(" prompt_tokens=").append(it)
+                }
+                result.generatedTokens?.let {
+                    append(" generated_tokens=").append(it)
+                }
+                result.generationMs?.let {
+                    append(" generation_ms=").append(it)
+                }
+            }
+        }
     }
 }

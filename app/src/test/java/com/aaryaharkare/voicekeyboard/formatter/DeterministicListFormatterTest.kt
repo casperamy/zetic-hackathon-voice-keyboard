@@ -12,7 +12,7 @@ class DeterministicListFormatterTest {
         val input =
             "The most important thing about this app is its design, its development, its business strategy, its marketing, and its sales."
 
-        val formatted = formatter.format(input)
+        val formatted = formatter.formatText(input)
 
         assertEquals(
             """
@@ -32,7 +32,7 @@ class DeterministicListFormatterTest {
         val input =
             "The priorities are design, development, testing, and launch readiness. The budget is still under review."
 
-        val formatted = formatter.format(input)
+        val formatted = formatter.formatText(input)
 
         assertEquals(
             """
@@ -52,13 +52,13 @@ class DeterministicListFormatterTest {
     fun `keeps ordinary comma sentence unchanged`() {
         val input = "I went to the store, bought milk, and came home."
 
-        assertEquals(input, formatter.format(input))
+        assertEquals(input, formatter.formatText(input))
     }
 
     @Test
     fun `requires at least three list items`() {
         val input = "The app needs design and development."
 
-        assertEquals(input, formatter.format(input))
+        assertEquals(input, formatter.formatText(input))
     }
 }

@@ -17,7 +17,7 @@ class DeterministicListFormatterNumberedRun100CaseTest {
 
         val results =
             cases.map { case ->
-                val output = formatter.format(case.text)
+                val output = formatter.formatText(case.text)
                 NumberedRunResult(
                     case = case,
                     output = output,

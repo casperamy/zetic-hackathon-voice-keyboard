@@ -17,7 +17,7 @@ class DeterministicListFormatterSentenceRunTest {
 
         val failures =
             cases.map { case ->
-                case to formatter.format(case.text)
+                case to formatter.formatText(case.text)
             }.filter { (case, output) ->
                 output != case.expectedOutput
             }

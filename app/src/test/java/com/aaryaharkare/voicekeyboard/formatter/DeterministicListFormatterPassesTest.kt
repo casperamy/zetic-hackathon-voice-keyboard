@@ -24,7 +24,7 @@ class DeterministicListFormatterPassesTest {
             2. Freeze the benchmark.
             3. Ship the fix.
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
@@ -44,7 +44,7 @@ class DeterministicListFormatterPassesTest {
             2. Validate the payment flow across sandbox and production.
             3. Publish the changelog.
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
@@ -104,7 +104,7 @@ class DeterministicListFormatterPassesTest {
             • animal
             • thing
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
@@ -122,7 +122,7 @@ class DeterministicListFormatterPassesTest {
             • It's fast.
             • It's going to make me 700 dollars.
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
@@ -139,7 +139,7 @@ class DeterministicListFormatterPassesTest {
             
             Now we can wait.
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
@@ -156,7 +156,7 @@ class DeterministicListFormatterPassesTest {
             • Ship the build.
             • Send notes.
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
@@ -172,7 +172,7 @@ class DeterministicListFormatterPassesTest {
             
             Email jane.doe@example.com after that.
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
@@ -188,50 +188,50 @@ class DeterministicListFormatterPassesTest {
             • animal
             • thing
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
     @Test
     fun `does not rewrite compiled during cleanup`() {
         val input = "The code compiled, the test flaked, and the deploy stalled."
-        assertEquals(input, formatter.format(input))
+        assertEquals(input, formatter.formatText(input))
     }
 
     @Test
     fun `does not rewrite server during cleanup`() {
         val input = "The server rebooted, the queue drained, and the alarm finally cleared."
-        assertEquals(input, formatter.format(input))
+        assertEquals(input, formatter.formatText(input))
     }
 
     @Test
     fun `keeps email punctuation intact`() {
         val input = "My email is jane.doe@example.com, not the old alias."
-        assertEquals(input, formatter.format(input))
+        assertEquals(input, formatter.formatText(input))
     }
 
     @Test
     fun `keeps URL punctuation intact`() {
         val input = "The backup URL is https://api.example.com/v1/status, not the staging one."
-        assertEquals(input, formatter.format(input))
+        assertEquals(input, formatter.formatText(input))
     }
 
     @Test
     fun `keeps version punctuation intact`() {
         val input = "Version 1.2 shipped before 2.0, and both releases were messy."
-        assertEquals(input, formatter.format(input))
+        assertEquals(input, formatter.formatText(input))
     }
 
     @Test
     fun `keeps decimal punctuation intact`() {
         val input = "The reading changed from 3.14 to 2.71, and then settled at 1.62."
-        assertEquals(input, formatter.format(input))
+        assertEquals(input, formatter.formatText(input))
     }
 
     @Test
     fun `keeps protected address sentence plain`() {
         val input = "The office is on 8th Avenue, Floor 12, New York, New York."
-        assertEquals(input, formatter.format(input))
+        assertEquals(input, formatter.formatText(input))
     }
 
     @Test
@@ -246,7 +246,7 @@ class DeterministicListFormatterPassesTest {
             • timelines
             • ownership
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
@@ -262,7 +262,7 @@ class DeterministicListFormatterPassesTest {
             • scope drift
             • vague ownership
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
@@ -278,20 +278,20 @@ class DeterministicListFormatterPassesTest {
             • staffing needs
             • legal review
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
     @Test
     fun `keeps office location sentence plain`() {
         val input = "The office in San Francisco, California, closes at six."
-        assertEquals(input, formatter.format(input))
+        assertEquals(input, formatter.formatText(input))
     }
 
     @Test
     fun `keeps transition led action sentence plain`() {
         val input = "Then he restarted the phone, rejoined the call, and finished as if nothing had happened."
-        assertEquals(input, formatter.format(input))
+        assertEquals(input, formatter.formatText(input))
     }
 
     @Test
@@ -312,7 +312,7 @@ class DeterministicListFormatterPassesTest {
 
             All of these combined give us a total output of 5 things.
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
@@ -343,7 +343,7 @@ class DeterministicListFormatterPassesTest {
 
             All of these combined give us a total output of 5 things. Now I want to see if all of these 5 things are as a list or if there are some false positives in the list as well because there can be certain things which are false positives as well.
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
@@ -358,7 +358,7 @@ class DeterministicListFormatterPassesTest {
             2. Expert.
             3. Developer.
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
@@ -373,7 +373,7 @@ class DeterministicListFormatterPassesTest {
             • Latency.
             • Rollout.
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
@@ -388,14 +388,14 @@ class DeterministicListFormatterPassesTest {
             • Latency.
             • Rollout.
             """.trimIndent(),
-            formatter.format(input),
+            formatter.formatText(input),
         )
     }
 
     @Test
     fun `keeps protected numeric text plain instead of parsing numbered run`() {
         val input = "Version 1.2.3 shipped before 2.0.1, and the hotfix landed on 03/11/2026."
-        assertEquals(input, formatter.format(input))
+        assertEquals(input, formatter.formatText(input))
     }
 
 }

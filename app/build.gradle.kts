@@ -26,7 +26,21 @@ android {
         buildConfigField("String", "PERSONAL_KEY", "\"${localProperties.getProperty("PERSONAL_KEY") ?: ""}\"")
         buildConfigField("String", "WHISPER_ENCODER_MODEL", "\"${localProperties.getProperty("WHISPER_ENCODER_MODEL") ?: ""}\"")
         buildConfigField("String", "WHISPER_DECODER_MODEL", "\"${localProperties.getProperty("WHISPER_DECODER_MODEL") ?: ""}\"")
-        buildConfigField("String", "FORMATTER_LLM_MODEL", "\"${localProperties.getProperty("FORMATTER_LLM_MODEL") ?: ""}\"")
+        buildConfigField(
+            "String",
+            "FORMATTER_LLM_MODEL",
+            "\"${localProperties.getProperty("FORMATTER_LLM_MODEL") ?: "palm/LFM2.5-1.2B-Instruct"}\""
+        )
+        buildConfigField(
+            "int",
+            "FORMATTER_LLM_VERSION",
+            "${localProperties.getProperty("FORMATTER_LLM_VERSION")?.toIntOrNull() ?: 1}"
+        )
+        buildConfigField(
+            "String",
+            "FORMATTER_LLM_MODE",
+            "\"${localProperties.getProperty("FORMATTER_LLM_MODE") ?: "RUN_AUTO"}\""
+        )
     }
 
     buildTypes {
