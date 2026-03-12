@@ -400,8 +400,13 @@ class VoiceInputMethodService : InputMethodService() {
     }
 
     private fun currentModelBlockingReason(): String? {
-        if (!WhisperPipeline.isWarmupDone()) {
-            return "Preload Whisper in setup"
+        val whisperSnapshot = WhisperPipeline.snapshot()
+        if (!whisperSnapshot.warmupDone) {
+            return when {
+                whisperSnapshot.loading -> "Whisper loading..."
+                whisperSnapshot.lastErrorMessage != null -> "Whisper error"
+                else -> "Open setup app to auto-load Whisper"
+            }
         }
 
         if (!shouldApplyFormatting(currentInputType)) {
@@ -413,7 +418,7 @@ class VoiceInputMethodService : InputMethodService() {
             snapshot.ready -> null
             snapshot.lastErrorMessage != null -> "Formatter LLM error"
             snapshot.loadingStatus in FORMATTER_LOADING_STATUSES -> "Formatter LLM loading..."
-            else -> "Preload Formatter LLM in setup"
+            else -> "Open setup app to auto-load Formatter LLM"
         }
     }
 

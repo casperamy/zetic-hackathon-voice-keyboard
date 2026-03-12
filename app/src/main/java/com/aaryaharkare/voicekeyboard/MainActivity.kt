@@ -9,7 +9,6 @@ import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -64,71 +63,74 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnPermission).setOnClickListener {
             requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
         }
-
-        findViewById<Button>(R.id.btnLoadModel).setOnClickListener {
-            preloadModels()
-        }
-
-        findViewById<Button>(R.id.btnLoadFormatterModel).setOnClickListener {
-            preloadFormatterModel()
-        }
-
-        applyModelStatus()
-        applyFormatterStatus()
-    }
-
-    private fun preloadModels() {
-        statusModel.text = "Loading Whisper..."
-        statusModel.setTextColor(ContextCompat.getColor(this, android.R.color.holo_blue_dark))
-
-        Thread {
-            try {
-                val warmupMetrics =
-                    runBlocking {
-                        WhisperPipeline.preloadAndWarm(applicationContext)
-                    }
-
-                runOnUiThread {
-                    applyModelStatus(warmupMetrics.totalPipelineMs)
-                    Toast.makeText(this, "Whisper ready", Toast.LENGTH_SHORT).show()
-                }
-            } catch (t: Throwable) {
-                runOnUiThread {
-                    statusModel.text = "Model Load Failed: ${t.message}"
-                    statusModel.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark))
-                    Toast.makeText(this, "Error: ${t.message}", Toast.LENGTH_LONG).show()
-                }
-            }
-        }.start()
-    }
-
-    private fun preloadFormatterModel() {
-        statusFormatter.text = "Formatter LLM: loading..."
-        statusFormatter.setTextColor(ContextCompat.getColor(this, android.R.color.holo_blue_dark))
-
-        Thread {
-            try {
-                val warmupResult =
-                    runBlocking {
-                        FormatterLlmPipeline.preloadAndWarm(applicationContext)
-                    }
-
-                runOnUiThread {
-                    applyFormatterStatus(warmupResult.generationMs)
-                    Toast.makeText(this, "Formatter LLM ready", Toast.LENGTH_SHORT).show()
-                }
-            } catch (t: Throwable) {
-                runOnUiThread {
-                    applyFormatterStatus(errorMessage = t.message)
-                    Toast.makeText(this, "Error: ${t.message}", Toast.LENGTH_LONG).show()
-                }
-            }
-        }.start()
     }
 
     override fun onResume() {
         super.onResume()
         updateStatus()
+        startAutoPreloadIfNeeded()
+    }
+
+    private fun startAutoPreloadIfNeeded() {
+        if (FormatterLlmPipeline.snapshot().ready && WhisperPipeline.isWarmupDone()) {
+            return
+        }
+
+        val shouldStart =
+            synchronized(PRELOAD_LOCK) {
+                if (autoPreloadInFlight) {
+                    false
+                } else {
+                    autoPreloadInFlight = true
+                    true
+                }
+            }
+        if (!shouldStart) {
+            return
+        }
+
+        Thread {
+            try {
+                if (!FormatterLlmPipeline.snapshot().ready) {
+                    runOnUiThread { showFormatterLoadingStatus() }
+                    try {
+                        val warmupResult =
+                            runBlocking {
+                                FormatterLlmPipeline.preloadAndWarm(applicationContext)
+                            }
+                        runOnUiThread {
+                            applyFormatterStatus(warmupMs = warmupResult.generationMs)
+                        }
+                    } catch (t: Throwable) {
+                        runOnUiThread {
+                            applyFormatterStatus(errorMessage = t.message)
+                        }
+                    }
+                }
+
+                if (!WhisperPipeline.isWarmupDone()) {
+                    runOnUiThread { showModelLoadingStatus() }
+                    try {
+                        val warmupMetrics =
+                            runBlocking {
+                                WhisperPipeline.preloadAndWarm(applicationContext)
+                            }
+                        runOnUiThread {
+                            applyModelStatus(whisperWarmupMs = warmupMetrics.totalPipelineMs)
+                        }
+                    } catch (t: Throwable) {
+                        runOnUiThread {
+                            applyModelStatus(errorMessage = t.message)
+                        }
+                    }
+                }
+            } finally {
+                synchronized(PRELOAD_LOCK) {
+                    autoPreloadInFlight = false
+                }
+                runOnUiThread { updateStatus() }
+            }
+        }.start()
     }
 
     private fun updateStatus() {
@@ -143,34 +145,35 @@ class MainActivity : AppCompatActivity() {
         statusSelected.text = "Keyboard Selected: ${if (isSelected) "YES" else "NO"}"
         statusPermission.text = "Mic Permission: ${if (hasPermission) "GRANTED" else "NOT GRANTED"}"
 
-        val preloadButton = findViewById<Button>(R.id.btnLoadModel)
-        preloadButton.text = "4. Preload Whisper"
-        val preloadFormatterButton = findViewById<Button>(R.id.btnLoadFormatterModel)
-        preloadFormatterButton.text = "5. Preload Formatter LLM"
-
         applyModelStatus()
         applyFormatterStatus()
     }
 
-    private fun applyModelStatus(whisperWarmupMs: Long? = null) {
-        val isReady = whisperWarmupMs != null || WhisperPipeline.isWarmupDone()
-        statusModel.text =
-            buildString {
-                append("Whisper: ")
-                append(
-                    if (whisperWarmupMs != null) {
-                        "ready (${whisperWarmupMs}ms)"
-                    } else if (isReady) {
-                        "ready"
-                    } else {
-                        "not loaded"
-                    },
-                )
+    private fun applyModelStatus(
+        whisperWarmupMs: Long? = null,
+        errorMessage: String? = null,
+    ) {
+        val snapshot = WhisperPipeline.snapshot()
+        val text =
+            when {
+                errorMessage != null -> "Whisper: error (${errorMessage})"
+                snapshot.lastErrorMessage != null -> "Whisper: error (${snapshot.lastErrorMessage})"
+                whisperWarmupMs != null -> "Whisper: ready (${whisperWarmupMs}ms)"
+                snapshot.warmupDone -> "Whisper: ready"
+                snapshot.loading -> "Whisper: loading..."
+                else -> "Whisper: not loaded"
             }
+
+        statusModel.text = text
         statusModel.setTextColor(
             ContextCompat.getColor(
                 this,
-                if (isReady) android.R.color.holo_green_dark else android.R.color.darker_gray,
+                when {
+                    text.contains("error") -> android.R.color.holo_red_dark
+                    text.contains("ready") -> android.R.color.holo_green_dark
+                    text.contains("loading") -> android.R.color.holo_blue_dark
+                    else -> android.R.color.darker_gray
+                },
             ),
         )
     }
@@ -208,6 +211,16 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private fun showModelLoadingStatus() {
+        statusModel.text = "Whisper: loading..."
+        statusModel.setTextColor(ContextCompat.getColor(this, android.R.color.holo_blue_dark))
+    }
+
+    private fun showFormatterLoadingStatus() {
+        statusFormatter.text = "Formatter LLM: loading..."
+        statusFormatter.setTextColor(ContextCompat.getColor(this, android.R.color.holo_blue_dark))
+    }
+
     private fun isInputMethodEnabled(): Boolean {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         val enabledMethods = imm.enabledInputMethodList
@@ -223,6 +236,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private companion object {
+        private val PRELOAD_LOCK = Any()
+        @Volatile
+        private var autoPreloadInFlight = false
+
         private val LOADING_STATUSES =
             setOf(
                 ModelLoadingStatus.PENDING,

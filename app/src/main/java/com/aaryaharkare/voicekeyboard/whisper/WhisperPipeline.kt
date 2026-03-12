@@ -13,6 +13,20 @@ object WhisperPipeline {
     @Volatile
     private var warmupDone = false
 
+    @Volatile
+    private var loading = false
+
+    @Volatile
+    private var lastErrorMessage: String? = null
+
+    fun snapshot(): WhisperStatusSnapshot {
+        return WhisperStatusSnapshot(
+            warmupDone = warmupDone,
+            loading = loading,
+            lastErrorMessage = lastErrorMessage,
+        )
+    }
+
     fun get(context: Context): WhisperFeature {
         val existing = pipeline
         if (existing != null) {
@@ -37,17 +51,28 @@ object WhisperPipeline {
     }
 
     suspend fun preloadAndWarm(context: Context): WhisperFeature.WhisperRunMetrics {
-        val whisper = get(context)
-        whisper.ensureInitialized()
-        val metrics = whisper.warmup()
-        warmupDone = true
-        if (BuildConfig.DEBUG) {
-            Log.d(
-                TAG,
-                "warmup done total=${metrics.totalPipelineMs}ms decoder=${metrics.decoderTotalMs}ms",
-            )
+        loading = true
+        lastErrorMessage = null
+
+        return try {
+            val whisper = get(context)
+            whisper.ensureInitialized()
+            val metrics = whisper.warmup()
+            warmupDone = true
+            if (BuildConfig.DEBUG) {
+                Log.d(
+                    TAG,
+                    "warmup done total=${metrics.totalPipelineMs}ms decoder=${metrics.decoderTotalMs}ms",
+                )
+            }
+            metrics
+        } catch (t: Throwable) {
+            warmupDone = false
+            lastErrorMessage = t.message ?: "Whisper load failed"
+            throw t
+        } finally {
+            loading = false
         }
-        return metrics
     }
 
     suspend fun warmupBestEffort(context: Context): WhisperFeature.WhisperRunMetrics? {
@@ -62,4 +87,10 @@ object WhisperPipeline {
     }
 
     fun isWarmupDone(): Boolean = warmupDone
+
+    data class WhisperStatusSnapshot(
+        val warmupDone: Boolean,
+        val loading: Boolean,
+        val lastErrorMessage: String?,
+    )
 }
