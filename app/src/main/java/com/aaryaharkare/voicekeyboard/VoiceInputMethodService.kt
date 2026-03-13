@@ -543,6 +543,9 @@ class VoiceInputMethodService : InputMethodService() {
         formattingExecution.formatterResult?.pass2Text?.takeIf { it.isNotBlank() }?.let {
             logLong(TAG, "formatter_trace pass2", it)
         }
+        formattingExecution.formatterResult?.rawLlmOutput?.let {
+            logLong(TAG, "formatter_trace list_raw_output", it)
+        }
         logLong(TAG, "whisper_trace final_commit", formattingExecution.formattedOutput)
         logLong(TAG, "formatter_trace summary", formattingExecution.traceSummary())
         formattingExecution.formatterResult?.debugTrace?.forEachIndexed { index, line ->

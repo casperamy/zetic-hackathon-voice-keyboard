@@ -6,39 +6,11 @@ import org.junit.Test
 class ZeticLlmFormatterPromptTest {
 
     @Test
-    fun `cleanup prompt includes protected spans and raw text`() {
-        val prompt =
-            ZeticLlmFormatter.buildCleanupPrompt(
-                rawText = "Send it to jane.doe@example.com",
-                protectedSpans =
-                    listOf(
-                        ProtectedSpan(
-                            label = "email",
-                            text = "jane.doe@example.com",
-                            startIndex = 11,
-                            endIndex = 31,
-                        ),
-                    ),
-            )
+    fun `warmup prompt is list planning prompt`() {
+        val prompt = ZeticLlmFormatter.buildWarmupPrompt("Send it to jane.doe@example.com")
 
-        assertTrue(prompt.contains("pass 1"))
-        assertTrue(prompt.contains("- email: jane.doe@example.com"))
+        assertTrue(prompt.contains("only formatting pass"))
         assertTrue(prompt.contains("<input_text>\nSend it to jane.doe@example.com"))
-    }
-
-    @Test
-    fun `correction prompt includes asr hints`() {
-        val prompt =
-            ZeticLlmFormatter.buildCorrectionPrompt(
-                cleanedText = "freeze the beach mark",
-                protectedSpans = emptyList(),
-                fieldContext = FormatterFieldContext(inputType = 0, isMultiline = false),
-                asrHints = AsrHints(alternativePhrases = listOf("benchmark", "bench mark")),
-            )
-
-        assertTrue(prompt.contains("pass 2"))
-        assertTrue(prompt.contains("- benchmark"))
-        assertTrue(prompt.contains("\"replacements\""))
     }
 
     @Test
@@ -50,8 +22,11 @@ class ZeticLlmFormatterPromptTest {
                 fieldContext = FormatterFieldContext(inputType = 0, isMultiline = true),
             )
 
-        assertTrue(prompt.contains("pass 3"))
+        assertTrue(prompt.contains("only formatting pass"))
         assertTrue(prompt.contains("\"list_plans\""))
-        assertTrue(prompt.contains("If uncertain, return no list plans."))
+        assertTrue(prompt.contains("Always return exactly one JSON object"))
+        assertTrue(prompt.contains("must include only these fields"))
+        assertTrue(prompt.contains("\"items\" must contain at least 2 strings"))
+        assertTrue(prompt.contains("The most important things are name, place, animal, thing, and feelings."))
     }
 }

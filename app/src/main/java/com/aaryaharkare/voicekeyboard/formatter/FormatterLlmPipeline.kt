@@ -10,7 +10,9 @@ import kotlinx.coroutines.withContext
 import kotlin.math.max
 
 object FormatterLlmPipeline {
-    private const val TAG = "VoiceKB"
+    private const val LIST_MODEL_KEY = "Qwen/Qwen3-0.6B"
+    private const val LIST_MODEL_VERSION = 1
+    private val LIST_MODEL_MODE = LLMModelMode.RUN_SPEED
 
     @Volatile
     private var model: ZeticMLangeLLMModel? = null
@@ -40,6 +42,8 @@ object FormatterLlmPipeline {
         get(context)
     }
 
+    fun modelKey(): String = LIST_MODEL_KEY
+
     suspend fun preloadAndWarm(context: Context): FormatterLlmGenerationResult {
         return generate(
             context = context,
@@ -62,11 +66,13 @@ object FormatterLlmPipeline {
             while (true) {
                 val nextTokenResult = llmModel.waitForNextToken()
                 val token = nextTokenResult.token
-                generatedTokens = nextTokenResult.generatedTokens
-                if (token.isEmpty()) {
+                if (nextTokenResult.generatedTokens == 0) {
                     break
                 }
-                output.append(token)
+                generatedTokens = nextTokenResult.generatedTokens
+                if (token.isNotEmpty()) {
+                    output.append(token)
+                }
             }
 
             ready = true
@@ -110,9 +116,6 @@ object FormatterLlmPipeline {
         require(BuildConfig.PERSONAL_KEY.isNotBlank()) {
             "PERSONAL_KEY is missing. Add it to local.properties."
         }
-        require(BuildConfig.FORMATTER_LLM_MODEL.isNotBlank()) {
-            "FORMATTER_LLM_MODEL is missing. Add it to local.properties."
-        }
 
         loadingStatus = ModelLoadingStatus.PENDING
         loadingProgress = 0f
@@ -122,9 +125,9 @@ object FormatterLlmPipeline {
             ZeticMLangeLLMModel(
                 context,
                 BuildConfig.PERSONAL_KEY,
-                BuildConfig.FORMATTER_LLM_MODEL,
-                version = BuildConfig.FORMATTER_LLM_VERSION,
-                modelMode = parseMode(BuildConfig.FORMATTER_LLM_MODE),
+                LIST_MODEL_KEY,
+                version = LIST_MODEL_VERSION,
+                modelMode = LIST_MODEL_MODE,
                 onProgress = { progress ->
                     loadingProgress = progress.coerceIn(0f, 1f)
                 },
@@ -157,11 +160,6 @@ object FormatterLlmPipeline {
             lastErrorMessage = t.message ?: "Formatter LLM download failed"
             throw t
         }
-    }
-
-    private fun parseMode(value: String): LLMModelMode {
-        return runCatching { LLMModelMode.valueOf(value) }
-            .getOrDefault(LLMModelMode.RUN_AUTO)
     }
 
     private fun nanosToMillis(nanos: Long): Long = nanos / 1_000_000L

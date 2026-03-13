@@ -11,6 +11,7 @@ data class FormatterResult(
     val rawText: String = "",
     val pass1Text: String = "",
     val pass2Text: String = "",
+    val rawLlmOutput: String = "",
     val listPlans: List<ListPlan> = emptyList(),
     val passMetrics: List<FormatterPassMetrics> = emptyList(),
     val fallbackReason: String? = null,

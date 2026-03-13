@@ -71,4 +71,27 @@ class FormatterJsonParserTest {
         assertEquals(EvidenceType.CROSS_SENTENCE_INTRO, parsed.plans.single().evidenceType)
         assertTrue(parsed.plans.single().items.contains("animal"))
     }
+
+    @Test
+    fun `parse list planning repairs partial list object from model`() {
+        val payload =
+            """
+            {
+              "list_plans": [
+                {
+                  "source_span_text": "The most important thing in this list is 5. Main place animal thing and feelings.",
+                  "intro_text": "The most important thing in this list is 5. Main place animal thing and feelings."
+                }
+              ],
+              "confidence": 0.0
+            }
+            """.trimIndent()
+
+        val parsed = FormatterJsonParser.parseListPlanning(payload)
+
+        assertNotNull(parsed)
+        assertEquals(1, parsed!!.plans.size)
+        assertEquals(ListType.UNORDERED, parsed.plans.single().listType)
+        assertEquals(listOf("Main", "place", "animal", "thing", "feelings"), parsed.plans.single().items)
+    }
 }

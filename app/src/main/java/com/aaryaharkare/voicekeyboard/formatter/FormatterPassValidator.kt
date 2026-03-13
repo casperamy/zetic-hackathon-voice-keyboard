@@ -17,7 +17,6 @@ internal object FormatterPassValidator {
     private const val CLEANUP_MAX_EDIT_RATIO = 0.20
     private const val CLEANUP_MIN_CONFIDENCE = 0.60
     private const val CORRECTION_MIN_CONFIDENCE = 0.70
-    private const val LIST_MIN_CONFIDENCE = 0.75
 
     private val bulletLineRegex = Regex("""^\s*(?:[-*•]|\d+[.)])\s+.+$""")
     private val orderedCueRegex =
@@ -174,7 +173,6 @@ internal object FormatterPassValidator {
                     rawPlan.evidenceType == EvidenceType.INLINE_NUMBERED_SEQUENCE ||
                     sourceText.lines().count { bulletLineRegex.matches(it) } >= 2
 
-            if (!explicit && rawPlan.confidence < LIST_MIN_CONFIDENCE) return@forEachIndexed
             if (!explicit && !strongCue && sanitizedItems.size < 3) return@forEachIndexed
             if (!strongCue && sanitizedItems.all(::looksLikeClause)) return@forEachIndexed
 
