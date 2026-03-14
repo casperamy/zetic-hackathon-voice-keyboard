@@ -1,7 +1,9 @@
 package com.aaryaharkare.voicekeyboard.whisper
 
 import android.content.Context
+import android.util.Log
 import com.zeticai.mlange.core.model.ModelMode
+import com.zeticai.mlange.core.model.TargetModel
 import com.zeticai.mlange.core.model.ZeticMLangeModel
 import com.zeticai.mlange.core.tensor.DataType
 import com.zeticai.mlange.core.tensor.Tensor
@@ -17,6 +19,7 @@ class WhisperDecoder(
     private val startToken: Int = START_TOKEN,
     private val endToken: Int = END_TOKEN,
 ) {
+    private var backendLogged = false
     private val model = ZeticMLangeModel(context, personalKey, modelKey, modelMode = ModelMode.RUN_AUTO)
 
     private val idsBuffer =
@@ -45,6 +48,7 @@ class WhisperDecoder(
         val encoderTensor = Tensor.of(encoderOutput)
         val modelInputs = arrayOf(idsTensor, encoderTensor, maskTensor)
 
+        logBackendOnce()
         val generated = IntArray(decodeCap)
         var generatedCount = 0
         var decodeSteps = 0
@@ -134,6 +138,25 @@ class WhisperDecoder(
 
     private fun nanosToMillis(nanos: Long): Long = nanos / 1_000_000L
 
+    private fun logBackendOnce() {
+        if (backendLogged) return
+        synchronized(this) {
+            if (backendLogged) return
+            backendLogged = true
+        }
+
+        try {
+            val field = model.javaClass.getDeclaredField("targetModel")
+            field.isAccessible = true
+            val targetModel = field.get(model) as? TargetModel
+            val apType = targetModel?.apType
+            val target = targetModel?.target
+            Log.d(TAG, "whisper_backend decoder apType=$apType target=$target")
+        } catch (t: Throwable) {
+            Log.w(TAG, "whisper_backend decoder unknown: ${t.message}", t)
+        }
+    }
+
     data class DecoderRunResult(
         val tokenIds: IntArray,
         val tokenCount: Int,
@@ -144,6 +167,7 @@ class WhisperDecoder(
     )
 
     companion object {
+        private const val TAG = "VoiceKB"
         private const val PAD_TOKEN = 50256
         private const val START_TOKEN = 50258
         private const val END_TOKEN = 50257

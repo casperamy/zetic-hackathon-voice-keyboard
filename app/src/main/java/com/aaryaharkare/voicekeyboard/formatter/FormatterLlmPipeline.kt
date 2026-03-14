@@ -1,10 +1,13 @@
 package com.aaryaharkare.voicekeyboard.formatter
 
 import android.content.Context
+import android.util.Log
 import com.aaryaharkare.voicekeyboard.BuildConfig
 import com.zeticai.mlange.core.model.ModelLoadingStatus
 import com.zeticai.mlange.core.model.llm.LLMModelMode
+import com.zeticai.mlange.core.model.llm.LLMTarget
 import com.zeticai.mlange.core.model.llm.ZeticMLangeLLMModel
+import com.zeticai.mlange.core.model.llm.ZeticMLangeLLMTargetModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.math.max
@@ -16,6 +19,8 @@ object FormatterLlmPipeline {
 
     @Volatile
     private var model: ZeticMLangeLLMModel? = null
+    @Volatile
+    private var backendLogged = false
 
     @Volatile
     private var ready = false
@@ -57,6 +62,7 @@ object FormatterLlmPipeline {
     ): FormatterLlmGenerationResult = withContext(Dispatchers.Default) {
         val startedAt = System.nanoTime()
         val llmModel = get(context)
+        logBackendOnce(llmModel)
 
         try {
             val runResult = llmModel.run(prompt)
@@ -164,6 +170,40 @@ object FormatterLlmPipeline {
 
     private fun nanosToMillis(nanos: Long): Long = nanos / 1_000_000L
 
+    private fun logBackendOnce(llmModel: ZeticMLangeLLMModel) {
+        if (backendLogged) return
+        synchronized(this) {
+            if (backendLogged) return
+            backendLogged = true
+        }
+
+        try {
+            val field = llmModel.javaClass.getDeclaredField("targetModel")
+            field.isAccessible = true
+            val targetModel = field.get(llmModel) as? ZeticMLangeLLMTargetModel
+            val target = targetModel?.target
+            val quantType = targetModel?.quantType
+            val apType = runCatching {
+                val method = targetModel?.javaClass?.methods?.firstOrNull {
+                    it.name == "getApType" && it.parameterCount == 0
+                }
+                method?.invoke(targetModel)
+            }.getOrNull()
+            val apTypeLabel = when {
+                apType != null -> apType.toString()
+                target == LLMTarget.LLAMA_CPP -> "CPU (inferred)"
+                else -> "UNKNOWN"
+            }
+            val impl = targetModel?.javaClass?.name
+            Log.d(
+                TAG,
+                "formatter_backend apType=$apTypeLabel target=$target quant=$quantType impl=$impl",
+            )
+        } catch (t: Throwable) {
+            Log.w(TAG, "formatter_backend unknown: ${t.message}", t)
+        }
+    }
+
     data class FormatterLlmStatusSnapshot(
         val ready: Boolean,
         val loadingStatus: ModelLoadingStatus,
@@ -179,4 +219,5 @@ object FormatterLlmPipeline {
     )
 
     private const val PRELOAD_SMOKE_INPUT = "Buy milk eggs and bread"
+    private const val TAG = "VoiceKB"
 }
